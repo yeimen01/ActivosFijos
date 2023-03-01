@@ -1,24 +1,19 @@
-﻿using ActivosFijos.Model.Enum;
+﻿using ActivosFijos.Model;
+using ActivosFijos.Model.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ActivosFijos.Model
+namespace ActivosFijos.Model.DTO
 {
-    public class TipoActivo
+    public class TipoActivoUpdateDTO
     {
-        public TipoActivo()
-        {
-            Estado = 0;
-        }
-
         public int Id { get; set; }
         public string Descripcion { get; set; }
         public string CuentaContableCompra { get; set; }
         public string CuentaContableDepreciacion { get; set; }
         public Estado Estado { get; set; }
-        public List<ActivoFijo> ActivosFijos { get; set; }
     }
 }
