@@ -16,5 +16,6 @@ namespace ActivosFijos.Data
         public DbSet<ActivoFijo> ActivosFijo { get; set; }
         public DbSet<CalculoDepreciacion> CalculoDepreciacion { get; set; }
         public DbSet<AsientosContables> AsientosContables { get; set; }
+        public DbSet<User> User { get; set; }
     }
 }
