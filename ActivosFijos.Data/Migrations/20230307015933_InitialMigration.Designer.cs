@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActivosFijos.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230301133700_InitialMigration")]
+    [Migration("20230307015933_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -105,6 +105,9 @@ namespace ActivosFijos.Data.Migrations
                     b.Property<int>("ActivoFijoId")
                         .HasColumnType("int");
 
+                    b.Property<int>("AsientoContableId")
+                        .HasColumnType("int");
+
                     b.Property<int>("AñoProceso")
                         .HasColumnType("int");
 
@@ -129,6 +132,8 @@ namespace ActivosFijos.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActivoFijoId");
+
+                    b.HasIndex("AsientoContableId");
 
                     b.ToTable("CalculoDepreciacion");
                 });
@@ -240,7 +245,15 @@ namespace ActivosFijos.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ActivosFijos.Model.AsientosContables", "AsientoContable")
+                        .WithMany()
+                        .HasForeignKey("AsientoContableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ActivosFijos");
+
+                    b.Navigation("AsientoContable");
                 });
 
             modelBuilder.Entity("ActivosFijos.Model.Empleado", b =>

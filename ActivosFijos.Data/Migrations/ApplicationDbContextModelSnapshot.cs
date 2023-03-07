@@ -102,6 +102,9 @@ namespace ActivosFijos.Data.Migrations
                     b.Property<int>("ActivoFijoId")
                         .HasColumnType("int");
 
+                    b.Property<int>("AsientoContableId")
+                        .HasColumnType("int");
+
                     b.Property<int>("AñoProceso")
                         .HasColumnType("int");
 
@@ -126,6 +129,8 @@ namespace ActivosFijos.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActivoFijoId");
+
+                    b.HasIndex("AsientoContableId");
 
                     b.ToTable("CalculoDepreciacion");
                 });
@@ -237,7 +242,15 @@ namespace ActivosFijos.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ActivosFijos.Model.AsientosContables", "AsientoContable")
+                        .WithMany()
+                        .HasForeignKey("AsientoContableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ActivosFijos");
+
+                    b.Navigation("AsientoContable");
                 });
 
             modelBuilder.Entity("ActivosFijos.Model.Empleado", b =>
