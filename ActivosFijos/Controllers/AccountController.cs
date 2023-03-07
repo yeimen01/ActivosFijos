@@ -76,7 +76,7 @@ namespace ActivosFijos.Controllers
                 //    var tokenString = tokenHandler.WriteToken(token);
 
                 //    return Ok(new { Token = tokenString });
-                return Ok($"Inicio de sesión exitoso");
+                return Ok(login);
 
             }
         }
