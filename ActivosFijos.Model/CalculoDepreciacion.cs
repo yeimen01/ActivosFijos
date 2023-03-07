@@ -16,9 +16,9 @@ namespace ActivosFijos.Model
         public int ActivoFijoId { get; set; }
         [JsonIgnore]
         public ActivoFijo ActivosFijos { get; set; }
-        public int AsientoContableId { get; set; }
-        [JsonIgnore]
-        public AsientosContables AsientoContable {get; set;}
+        //public int AsientoContableId { get; set; }
+        //[JsonIgnore]
+        //public AsientosContables AsientoContable {get; set;}
         public DateTime? FechaProceso { get; set; }
         public double MontoDepreciado { get; set; }
         public double DepreciacionAcumulada { get; set; }

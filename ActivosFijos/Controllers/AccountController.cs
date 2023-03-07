@@ -44,7 +44,7 @@ namespace ActivosFijos.Controllers
             return Ok("Usuario creado correctamente.");
         }
 
-        [HttpPost("/login")]
+        [HttpPost("/api/login")]
         public async Task<IActionResult> Login([FromBody] UserCreateDTO login)
         {
             var user = await DbContext.User.

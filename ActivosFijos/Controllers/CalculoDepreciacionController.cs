@@ -2,7 +2,6 @@
 using ActivosFijos.Model.DTO;
 using ActivosFijos.Model;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,12 +20,15 @@ namespace ActivosFijos.Controllers
             this.Mapper = Mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<CalculoDepreciacion>>> Get()
+        [HttpGet("Get-by-activo")]
+        public async Task<ActionResult> GetByActivoFijo([FromQuery] int activoFijoId)
         {
-            return await DbContext.CalculoDepreciacion.
-                Include(x=> x.ActivosFijos).
-                ToListAsync();
+            var deprecionaciones = await DbContext.CalculoDepreciacion.
+                Include(x=> x.ActivosFijos)
+                .Where(depreciacion => depreciacion.ActivoFijoId == activoFijoId)
+                .ToListAsync();
+
+            return Ok(deprecionaciones);
         }
 
         [HttpGet("{id:int}")]
@@ -47,6 +49,15 @@ namespace ActivosFijos.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(CalculoDepreciacionCreateDTO calculoDepreciacionCreateDTO)
         {
+            var activoFijo = await DbContext.ActivosFijo
+                .Include(activoFijo=> activoFijo.TipoActivo)
+                .FirstOrDefaultAsync(activoFijo => activoFijo.Id == calculoDepreciacionCreateDTO.ActivoFijoId);
+
+            if (activoFijo == null)
+            {
+                return NotFound("El activo fijo no existe.");
+            }
+            
             //Mapping information
             CalculoDepreciacion calculoDepreciacion = new CalculoDepreciacion()
             {
@@ -54,18 +65,17 @@ namespace ActivosFijos.Controllers
                 AñoProceso = DateTime.Today.Year,
                 MesProceso = DateTime.Today.Month,
                 FechaProceso = DateTime.Now,
+                CuentaCompra = activoFijo.TipoActivo.CuentaContableCompra,
+                CuentaDepreciacion = activoFijo.TipoActivo.CuentaContableDepreciacion
             };
             
-            var activoFijo = await DbContext.ActivosFijo.
-                FindAsync(calculoDepreciacionCreateDTO.ActivoFijoId);
 
-            if (activoFijo == null)
-            {
-                return NotFound("El activo fijo no existe.");
-            }
+            calculoDepreciacion.MontoDepreciado = activoFijo.ValorDepreciacion;
             
+            activoFijo.DepreciacionAcumulada += activoFijo.ValorDepreciacion;
 
             DbContext.Add(calculoDepreciacion);
+            DbContext.Update(activoFijo);
             await DbContext.SaveChangesAsync();
             return Ok("El calculo de depreciacion se ha creado correctamente");
         }
