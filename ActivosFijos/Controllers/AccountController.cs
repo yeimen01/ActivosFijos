@@ -45,7 +45,7 @@ namespace ActivosFijos.Controllers
         }
 
         [HttpPost("/login")]
-        public async Task<IActionResult> Login([FromBody] User login)
+        public async Task<IActionResult> Login([FromBody] UserCreateDTO login)
         {
             var user = await DbContext.User.
                 FirstOrDefaultAsync(x => x.Username.ToLower() == login.Username.ToLower());
