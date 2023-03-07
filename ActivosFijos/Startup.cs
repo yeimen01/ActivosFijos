@@ -8,6 +8,9 @@ namespace ActivosFijos
 {
     public class Startup
     {
+
+        private readonly string Cors = "Cors";
+
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -21,12 +24,21 @@ namespace ActivosFijos
             services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             //Adding dbcontext
-            services.AddDbContext<ApplicationDbContext>(options=> options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
             //Mapper
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
+            //Cors
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: Cors, builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -43,6 +55,9 @@ namespace ActivosFijos
             app.UseRouting();
 
             app.UseAuthorization();
+
+            //Cors
+            app.UseCors(Cors);
 
             app.UseEndpoints(endpoints =>
             {
