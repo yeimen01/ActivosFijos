@@ -8,7 +8,10 @@ namespace ActivosFijos
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; } 
+
+        private readonly string Cors = "Cors";
+
+        public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
@@ -17,26 +20,25 @@ namespace ActivosFijos
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //adding cors
-            
-            services.AddCors(c
-                => c.AddDefaultPolicy(builder
-                    => builder
-                        .SetIsOriginAllowed(core => true)
-                        .AllowCredentials()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()));
-            
             //Avoiding cyclic reference 
             services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             //Adding dbcontext
-            services.AddDbContext<ApplicationDbContext>(options=> options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
             //Mapper
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
+            //Cors
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: Cors, builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -53,8 +55,9 @@ namespace ActivosFijos
             app.UseRouting();
 
             app.UseAuthorization();
-            
-            app.UseCors();
+
+            //Cors
+            app.UseCors(Cors);
 
             app.UseEndpoints(endpoints =>
             {

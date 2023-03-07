@@ -4,6 +4,7 @@ using ActivosFijos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActivosFijos.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230307015933_InitialMigration")]
+    partial class InitialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,26 +155,6 @@ namespace ActivosFijos.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departamento");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descripcion = "Administracion",
-                            Estado = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descripcion = "Contabilidad",
-                            Estado = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descripcion = "Informatica",
-                            Estado = 0
-                        });
                 });
 
             modelBuilder.Entity("ActivosFijos.Model.Empleado", b =>
@@ -233,33 +216,6 @@ namespace ActivosFijos.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TipoActivo");
-                });
-
-            modelBuilder.Entity("ActivosFijos.Model.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Password")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4,
-                            Password = "admin1234",
-                            Username = "admin"
-                        });
                 });
 
             modelBuilder.Entity("ActivosFijos.Model.ActivoFijo", b =>

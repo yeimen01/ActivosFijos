@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActivosFijos.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230301133700_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20230307025507_Account")]
+    partial class Account
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,9 @@ namespace ActivosFijos.Data.Migrations
                     b.Property<int>("ActivoFijoId")
                         .HasColumnType("int");
 
+                    b.Property<int>("AsientoContableId")
+                        .HasColumnType("int");
+
                     b.Property<int>("AñoProceso")
                         .HasColumnType("int");
 
@@ -129,6 +132,8 @@ namespace ActivosFijos.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActivoFijoId");
+
+                    b.HasIndex("AsientoContableId");
 
                     b.ToTable("CalculoDepreciacion");
                 });
@@ -213,6 +218,25 @@ namespace ActivosFijos.Data.Migrations
                     b.ToTable("TipoActivo");
                 });
 
+            modelBuilder.Entity("ActivosFijos.Model.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
+                });
+
             modelBuilder.Entity("ActivosFijos.Model.ActivoFijo", b =>
                 {
                     b.HasOne("ActivosFijos.Model.Departamento", "Departamento")
@@ -240,7 +264,15 @@ namespace ActivosFijos.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ActivosFijos.Model.AsientosContables", "AsientoContable")
+                        .WithMany()
+                        .HasForeignKey("AsientoContableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ActivosFijos");
+
+                    b.Navigation("AsientoContable");
                 });
 
             modelBuilder.Entity("ActivosFijos.Model.Empleado", b =>

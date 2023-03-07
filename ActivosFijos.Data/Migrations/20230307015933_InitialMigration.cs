@@ -124,6 +124,7 @@ namespace ActivosFijos.Data.Migrations
                     AñoProceso = table.Column<int>(type: "int", nullable: false),
                     MesProceso = table.Column<int>(type: "int", nullable: false),
                     ActivoFijoId = table.Column<int>(type: "int", nullable: false),
+                    AsientoContableId = table.Column<int>(type: "int", nullable: false),
                     FechaProceso = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MontoDepreciado = table.Column<double>(type: "float", nullable: false),
                     DepreciacionAcumulada = table.Column<double>(type: "float", nullable: false),
@@ -137,6 +138,12 @@ namespace ActivosFijos.Data.Migrations
                         name: "FK_CalculoDepreciacion_ActivosFijo_ActivoFijoId",
                         column: x => x.ActivoFijoId,
                         principalTable: "ActivosFijo",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CalculoDepreciacion_AsientosContables_AsientoContableId",
+                        column: x => x.AsientoContableId,
+                        principalTable: "AsientosContables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -157,6 +164,11 @@ namespace ActivosFijos.Data.Migrations
                 column: "ActivoFijoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CalculoDepreciacion_AsientoContableId",
+                table: "CalculoDepreciacion",
+                column: "AsientoContableId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Empleado_DepartamentoId",
                 table: "Empleado",
                 column: "DepartamentoId");
@@ -166,9 +178,6 @@ namespace ActivosFijos.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AsientosContables");
-
-            migrationBuilder.DropTable(
                 name: "CalculoDepreciacion");
 
             migrationBuilder.DropTable(
@@ -176,6 +185,9 @@ namespace ActivosFijos.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "ActivosFijo");
+
+            migrationBuilder.DropTable(
+                name: "AsientosContables");
 
             migrationBuilder.DropTable(
                 name: "Departamento");
