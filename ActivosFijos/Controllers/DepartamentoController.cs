@@ -26,7 +26,7 @@ namespace ActivosFijos.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Departamento>>> Get()
         {
-            return await DbContext.Departamento.Include(x=> x.Empleados).ToListAsync();
+            return await DbContext.Departamento.ToListAsync();
         }
 
         [HttpGet("{id:int}")]

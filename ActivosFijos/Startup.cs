@@ -8,7 +8,7 @@ namespace ActivosFijos
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; } 
 
         public Startup(IConfiguration configuration)
         {
@@ -17,6 +17,16 @@ namespace ActivosFijos
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //adding cors
+            
+            services.AddCors(c
+                => c.AddDefaultPolicy(builder
+                    => builder
+                        .SetIsOriginAllowed(core => true)
+                        .AllowCredentials()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()));
+            
             //Avoiding cyclic reference 
             services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
@@ -43,6 +53,8 @@ namespace ActivosFijos
             app.UseRouting();
 
             app.UseAuthorization();
+            
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {

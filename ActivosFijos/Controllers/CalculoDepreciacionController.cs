@@ -48,15 +48,22 @@ namespace ActivosFijos.Controllers
         public async Task<ActionResult> Post(CalculoDepreciacionCreateDTO calculoDepreciacionCreateDTO)
         {
             //Mapping information
-            CalculoDepreciacion calculoDepreciacion = Mapper.Map<CalculoDepreciacion>(calculoDepreciacionCreateDTO);
-
-            var activoFijo = await DbContext.TipoActivo.
+            CalculoDepreciacion calculoDepreciacion = new CalculoDepreciacion()
+            {
+                ActivoFijoId = calculoDepreciacionCreateDTO.ActivoFijoId,
+                AñoProceso = DateTime.Today.Year,
+                MesProceso = DateTime.Today.Month,
+                FechaProceso = DateTime.Now,
+            };
+            
+            var activoFijo = await DbContext.ActivosFijo.
                 FindAsync(calculoDepreciacionCreateDTO.ActivoFijoId);
 
             if (activoFijo == null)
             {
                 return NotFound("El activo fijo no existe.");
             }
+            
 
             DbContext.Add(calculoDepreciacion);
             await DbContext.SaveChangesAsync();

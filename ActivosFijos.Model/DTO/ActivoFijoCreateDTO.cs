@@ -12,8 +12,7 @@ namespace ActivosFijos.Model.DTO
         public string Descripcion { get; set; }
         public int DepartamentoId { get; set; }
         public int TipoActivoId { get; set; }
-        public DateTime? FechaRegistro { get; set; }
         public double ValorCompra { get; set; }
-        public double DepreciacionAcumulada { get; set; }
+        public double ValorDepreciacion { get; set; }
     }
 }

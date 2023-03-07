@@ -24,7 +24,22 @@ namespace ActivosFijos.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Empleado>>> Get()
         {
-            return await DbContext.Empleado.Include(x => x.Departamento).ToListAsync();
+            var empleados = await DbContext.Empleado
+                .Include(x => x.Departamento)
+                .Select(value => new Empleado()
+                {
+                    Id = value.Id,
+                    Nombre = value.Nombre,
+                    Apellido = value.Apellido,
+                    Cedula = value.Cedula,
+                    DepartamentoId = value.DepartamentoId,
+                    Estado = value.Estado,
+                    FechaIngreso = value.FechaIngreso,
+                    DepartamentoDescripcion = value.Departamento.Descripcion
+                })
+                .ToListAsync();
+            
+            return Ok(empleados);
         }
 
         [HttpGet("{id:int}")]
@@ -85,15 +100,15 @@ namespace ActivosFijos.Controllers
                 return NotFound("No existe el id del empleado que desea actualizar.");
             }
 
-            if (Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
+            if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
             {
                 return BadRequest("El tipo de persona suministrado no existe.");
             }
 
-            if (!Enum.IsDefined(typeof(Estado), empleado.Estado))
+            /*if (!Enum.IsDefined(typeof(Estado), empleado.Estado))
             {
                 return BadRequest("El estado suminstrado no existe.");
-            }
+            }*/
 
             //Mapping information
             mapper.Map(empleadoDTO, empleado);

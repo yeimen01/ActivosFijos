@@ -2,6 +2,7 @@
 using ActivosFijos.Model.Enum;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -28,8 +29,12 @@ namespace ActivosFijos.Model
         }
         public string Cedula { get; set; }
         public int DepartamentoId { get; set; }
+        
         [JsonIgnore]
         public Departamento Departamento { get; set; }
+
+        [NotMapped] public string DepartamentoDescripcion { get; set; }
+
         public TipoPersona TipoPersona { get; set; }
         public DateTime? FechaIngreso { get; set; }
         public Estado Estado { get; set; }
