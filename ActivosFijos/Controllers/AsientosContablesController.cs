@@ -1,11 +1,11 @@
 ﻿using ActivosFijos.Data;
 using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using ActivosFijos.Model.Enum;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ActivosFijos.Model.Entities;
 
 namespace ActivosFijos.Controllers
 {

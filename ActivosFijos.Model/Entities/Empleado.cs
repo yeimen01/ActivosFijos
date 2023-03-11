@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 
-namespace ActivosFijos.Model
+namespace ActivosFijos.Model.Entities
 {
     public class Empleado
     {
@@ -21,7 +21,8 @@ namespace ActivosFijos.Model
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
-        private string NombreCompleto {
+        private string NombreCompleto
+        {
             get
             {
                 return $"{Nombre} {Apellido}";
@@ -29,7 +30,7 @@ namespace ActivosFijos.Model
         }
         public string Cedula { get; set; }
         public int DepartamentoId { get; set; }
-        
+
         [JsonIgnore]
         public Departamento Departamento { get; set; }
 

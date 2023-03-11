@@ -1,9 +1,9 @@
 ﻿using ActivosFijos.Data;
 using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ActivosFijos.Model.Entities;
 
 namespace ActivosFijos.Controllers
 {
@@ -20,7 +20,7 @@ namespace ActivosFijos.Controllers
             this.Mapper = Mapper;
         }
 
-        [HttpGet("Get-by-activo")]
+        [HttpGet("Getbyactivo")]
         public async Task<ActionResult> GetByActivoFijo([FromQuery] int activoFijoId)
         {
             var deprecionaciones = await DbContext.CalculoDepreciacion.
@@ -71,7 +71,6 @@ namespace ActivosFijos.Controllers
             
 
             calculoDepreciacion.MontoDepreciado = activoFijo.ValorDepreciacion;
-            
             activoFijo.DepreciacionAcumulada += activoFijo.ValorDepreciacion;
 
             DbContext.Add(calculoDepreciacion);

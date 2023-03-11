@@ -1,10 +1,13 @@
 ﻿using ActivosFijos.Data;
 using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using ActivosFijos.Model.Enum;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ActivosFijos.Model.Entities;
+using ActivosFijos.Data.Interfaces;
+using ActivosFijos.Model.Utilities;
+using System.Net;
 
 namespace ActivosFijos.Controllers
 {
@@ -12,129 +15,193 @@ namespace ActivosFijos.Controllers
     [Route("api/[controller]")]
     public class EmpleadoController : ControllerBase
     {
-        private readonly ApplicationDbContext DbContext;
-        private readonly IMapper mapper;
+        private readonly IEmpleadoService<Empleado> _empleadoService;
+        private readonly IDepartamentoService<Departamento> _departamentoService;
 
-        public EmpleadoController(ApplicationDbContext DbContext, IMapper mapper)
+        public EmpleadoController(IEmpleadoService<Empleado> _empleadoService, IDepartamentoService<Departamento> _departamentoService)
         {
-            this.DbContext = DbContext;
-            this.mapper = mapper;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<Empleado>>> Get()
-        {
-            var empleados = await DbContext.Empleado
-                .Include(x => x.Departamento)
-                .Select(value => new Empleado()
-                {
-                    Id = value.Id,
-                    Nombre = value.Nombre,
-                    Apellido = value.Apellido,
-                    Cedula = value.Cedula,
-                    DepartamentoId = value.DepartamentoId,
-                    Estado = value.Estado,
-                    FechaIngreso = value.FechaIngreso,
-                    DepartamentoDescripcion = value.Departamento.Descripcion
-                })
-                .ToListAsync();
-            
-            return Ok(empleados);
+            this._empleadoService = _empleadoService;
+            this._departamentoService = _departamentoService;
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Empleado>> Get(int id)
+        public async Task<ActionResult<EmpleadoGetDTO>> Get(int id)
         {
-            var empleado = await DbContext.Empleado.
-                Include(x => x.Departamento).
-                FirstOrDefaultAsync(x => x.Id == id);
-
-            if (empleado == null)
+            Respuesta respuesta;
+            try
             {
-                return NotFound();
+                //Data
+                var empleado = await _empleadoService.Get(id);
+
+                if (empleado == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
+                    return NotFound(respuesta);
+                }
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", empleado);
+
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500,respuesta);
             }
 
-            return empleado;
+            return Ok(respuesta);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<EmpleadoGetDTO>>> Get()
+        {
+            Respuesta respuesta;
+            try
+            {
+                //Data
+                var empleados = await _empleadoService.Get();
+
+                if (empleados == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
+                    return NotFound(respuesta);
+                }
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", empleados);
+
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500,respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
         [HttpPost]
         public async Task<ActionResult> Post(EmpleadoCreateDTO empleadoDTO)
         {
-            //Mapping information
-            Empleado empleado = mapper.Map<Empleado>(empleadoDTO);
-
-            //Verifying the exitanse of the department
-            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x => x.Id == empleado.DepartamentoId);
-
-            if (departamento == null)
+            Respuesta respuesta;
+            try
             {
-                return BadRequest("No existe el departamento del empleado que desea agregar.");
+                //Verifying the exitanse of the department
+                var departamento = await _departamentoService.Get(empleadoDTO.DepartamentoId);
+
+                if (departamento == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el departamento del empleado que desea agregar.");
+                    return NotFound(respuesta);
+                }
+
+                //Verifying tipo persona
+                if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de persona suministrado no existe.");
+                    return BadRequest(respuesta);
+                }
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamento);
+
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500, respuesta);
             }
 
-            if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
-            {
-                return BadRequest("El tipo de persona suministrado no existe.");
-            }
-
-            //Adding the information
-            DbContext.Add(empleado);
-            await DbContext.SaveChangesAsync();
-
-            return Ok("Empleado agregado correctamente.");
+            return Ok(respuesta);
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(EmpleadoUpdateDTO empleadoDTO, int id)
         {
-            //Verifying id
-            if (empleadoDTO.Id != id)
+            Respuesta respuesta;
+            try
             {
-                return BadRequest("El id proporcionado no coincide con el id del empleado.");
+                //Verifying id
+                if (empleadoDTO.Id != id)
+                {
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del empleado.");
+                    return NotFound(respuesta);
+                }
+
+                //Verifying existense
+                var empleado = await _empleadoService.Get(id);
+
+                if (empleado == null)
+                {
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el id del empleado que desea actualizar.");
+                    return NotFound(respuesta);
+                }
+
+                if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
+                {
+                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de persona suministrado no existe.");
+                    return BadRequest(respuesta);
+                }
+
+                if (!Enum.IsDefined(typeof(Estado), empleado.Estado))
+                {
+                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
+                    return BadRequest(respuesta);
+                }
+
+                //Put service
+                await _empleadoService.Put(empleadoDTO, empleado);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Empleado actualizado correctamente.", empleado);
+
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500, respuesta);
             }
 
-            //Verifying existense
-            var empleado = await DbContext.Empleado.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (empleado == null)
-            {
-                return NotFound("No existe el id del empleado que desea actualizar.");
-            }
-
-            if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
-            {
-                return BadRequest("El tipo de persona suministrado no existe.");
-            }
-
-            /*if (!Enum.IsDefined(typeof(Estado), empleado.Estado))
-            {
-                return BadRequest("El estado suminstrado no existe.");
-            }*/
-
-            //Mapping information
-            mapper.Map(empleadoDTO, empleado);
-
-            //Updating information
-            DbContext.Entry(empleado).State = EntityState.Modified;
-            DbContext.Update(empleado);
-            await DbContext.SaveChangesAsync();
-
-            return Ok("Empleado actualizado correctamente.");
+            return Ok(respuesta);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existeEmpleado = await DbContext.Empleado.AnyAsync(x => x.Id == id);
-
-            if (!existeEmpleado)
+            Respuesta respuesta;
+            try
             {
-                return NotFound("No se encontró el empleado.");
+                var existeEmpleado = await _empleadoService.Get(id);
+
+                if (existeEmpleado == null)
+                {
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el id del empleado que desea borrar.");
+                    return NotFound(respuesta);
+                }
+
+                //Delete service
+                await _empleadoService.Delete(existeEmpleado);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Empleado borrado correctamente.");
+
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500, respuesta);
             }
 
-            //Deleting information
-            DbContext.Remove(new Empleado { Id = id});
-            await DbContext.SaveChangesAsync();
-            return Ok("Empleado borrado correctamente.");
+            return Ok(respuesta);
         }
 
     }

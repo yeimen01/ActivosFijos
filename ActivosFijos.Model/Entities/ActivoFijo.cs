@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace ActivosFijos.Model
+namespace ActivosFijos.Model.Entities
 {
     public class ActivoFijo
     {
@@ -20,6 +20,7 @@ namespace ActivosFijos.Model
         public double ValorCompra { get; set; }
         public double ValorDepreciacion { get; set; }
         public double DepreciacionAcumulada { get; set; }
+        public int AnioDepreciacion{ get; set; }
 
     }
 }

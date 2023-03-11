@@ -1,10 +1,14 @@
 ﻿using ActivosFijos.Data;
 using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using ActivosFijos.Model.Enum;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ActivosFijos.Data.Interfaces.Services;
+using ActivosFijos.Data.Interfaces;
+using ActivosFijos.Model.Entities;
+using ActivosFijos.Model.Utilities;
+using System.Net;
 
 namespace ActivosFijos.Controllers
 {
@@ -13,98 +17,181 @@ namespace ActivosFijos.Controllers
     [Route("api/[controller]")]
     public class DepartamentoController : ControllerBase
     {
-        private readonly ApplicationDbContext DbContext;
-        private readonly IMapper mapper;
+        private readonly IDepartamentoService<Departamento> _departamentoService;
 
-        public DepartamentoController(ApplicationDbContext DbContext, IMapper mapper)
+        public DepartamentoController(IDepartamentoService<Departamento> _departamentoService)
         {
-            this.DbContext = DbContext; 
-            this.mapper = mapper;
+            this._departamentoService = _departamentoService;
 
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<Departamento>>> Get()
-        {
-            return await DbContext.Departamento.ToListAsync();
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Departamento>> Get(int id)
+        public async Task<ActionResult<DepartamentoGetDTO>> Get(int id)
         {
-            var departamento = await DbContext.Departamento.
-                Include(x=> x.Empleados).
-                FirstOrDefaultAsync(x => x.Id == id);
-
-            if (departamento == null)
+            Respuesta respuesta;
+            try
             {
-                return NotFound();
+                //GetById service
+                var departamento = await _departamentoService.Get(id);
+
+                if (departamento == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
+                    return NotFound(respuesta);
+                }
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamento);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+
+                return StatusCode(500, respuesta);
             }
 
+            return Ok(respuesta);
+        }
 
-            return departamento;
+        [HttpGet]
+        public async Task<ActionResult<List<DepartamentoGetDTO>>> Get()
+        {
+            Respuesta respuesta;
+            try
+            {
+                //Get all service
+                var departamentos = await _departamentoService.Get();
+
+                if (departamentos == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+                    return NotFound(respuesta);
+                }
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamentos);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500, respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
         [HttpPost]
         public async Task<ActionResult> Post(DepartamentoCreateDTO departamentoDTO)
         {
-            //Mapping information
-            Departamento departamento = mapper.Map<Departamento>(departamentoDTO);
+            Respuesta respuesta;
+            try
+            {
+                //Post service
+                var departamento = await _departamentoService.Post(departamentoDTO);
 
-            //Adding the information
-            DbContext.Add(departamento);
-            await DbContext.SaveChangesAsync();
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.Created, "Exito", departamentoDTO);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500, respuesta);
+            }
 
-            return Ok(departamento);
+            return Ok(respuesta);
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(DepartamentoUpdateDTO departamentoDTO, int id)
         {
-            //Verifying id
-            if (departamentoDTO.Id != id)
+            Respuesta respuesta;
+            try
             {
-                return BadRequest("El id proporcionado no coincide con el id del departamento");
+                //Verifying id
+                if (departamentoDTO.Id != id)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del departamento.");
+                    return BadRequest(respuesta);
+                }
+
+                //Verifying existense
+                var departamento = await _departamentoService.Get(id);
+
+                if (departamento == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el departamento.");
+
+                    return NotFound(respuesta);
+                }
+
+                //Verifying if enum is correct
+                if (!Enum.IsDefined(typeof(Estado), departamento.Estado))
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
+                    return BadRequest(respuesta);
+                }
+
+                //Put service
+                await _departamentoService.Put(departamentoDTO, departamento);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Departamento actualizado correctamente", departamento);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500, respuesta);
             }
 
-            //Verifying existense
-            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (departamento == null)
-            {
-                return NotFound();
-            }
-
-            if (!Enum.IsDefined(typeof(Estado), departamento.Estado))
-            {
-                return BadRequest("El estado suminstrado no existe.");
-            }
-
-            //Mapping information
-            mapper.Map(departamentoDTO, departamento);
-
-            //Updating information
-            DbContext.Entry(departamento).State = EntityState.Modified;
-            DbContext.Update(departamento);
-            await DbContext.SaveChangesAsync();
-
-            return Ok("Departamento actualizado correctamente");
+            return Ok(respuesta);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await DbContext.Departamento.AnyAsync(x => x.Id == id);
-
-            if (!existe)
+            Respuesta respuesta;
+            try
             {
-                return NotFound();
+                var departamento = await _departamentoService.Get(id);
+
+                if (departamento == null)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el departamento.");
+                    return NotFound(respuesta);
+                }
+
+                if (departamento.Empleados.Count > 0)
+                {
+                    //Respuesta
+                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "No se puede borrar el departamento, porque ya tiene empleados.");
+                    return BadRequest(respuesta);
+                }
+
+                //Delete service
+                await _departamentoService.Delete(departamento);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Departamento borrado correctamente");
+
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode(500,respuesta);
             }
 
-            //Deleting information
-            DbContext.Remove(new Departamento() { Id = id});
-            await DbContext.SaveChangesAsync();
-            return Ok("Departamento borrado correctamente");
+            return Ok(respuesta);
         }
     }
 }

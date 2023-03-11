@@ -1,5 +1,8 @@
 ﻿using ActivosFijos.Data;
+using ActivosFijos.Data.Interfaces;
+using ActivosFijos.Data.Interfaces.Services;
 using ActivosFijos.Mapper;
+using ActivosFijos.Model.Entities;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -27,6 +30,10 @@ namespace ActivosFijos
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            //Scopes
+            services.AddScoped<IDepartamentoService<Departamento>, DepartamentoService<Departamento>>();
+            services.AddScoped<IEmpleadoService<Empleado>, EmpleadoService<Empleado>>();
 
             //Mapper
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);

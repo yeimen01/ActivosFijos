@@ -1,4 +1,4 @@
-﻿using ActivosFijos.Model;
+﻿using ActivosFijos.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ActivosFijos.Data

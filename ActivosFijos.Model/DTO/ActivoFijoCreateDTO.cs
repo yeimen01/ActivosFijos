@@ -14,5 +14,6 @@ namespace ActivosFijos.Model.DTO
         public int TipoActivoId { get; set; }
         public double ValorCompra { get; set; }
         public double ValorDepreciacion { get; set; }
+        public int AnioDepreciacion{ get; set; }
     }
 }

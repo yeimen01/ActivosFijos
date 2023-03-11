@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace ActivosFijos.Model
+namespace ActivosFijos.Model.Entities
 {
     public class CalculoDepreciacion
     {
@@ -22,7 +22,7 @@ namespace ActivosFijos.Model
         public DateTime? FechaProceso { get; set; }
         public double MontoDepreciado { get; set; }
         public double DepreciacionAcumulada { get; set; }
-        public string CuentaCompra{ get; set; }
+        public string CuentaCompra { get; set; }
         public string CuentaDepreciacion { get; set; }
 
     }

@@ -1,6 +1,6 @@
 ﻿using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using AutoMapper;
+using ActivosFijos.Model.Entities;
 
 namespace ActivosFijos.Mapper
 {
