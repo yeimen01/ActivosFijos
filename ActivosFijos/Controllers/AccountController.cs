@@ -1,6 +1,6 @@
 ﻿using ActivosFijos.Data;
-using ActivosFijos.Model;
 using ActivosFijos.Model.DTO;
+using ActivosFijos.Model.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

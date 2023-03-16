@@ -16,5 +16,6 @@ namespace ActivosFijos.Model.DTO
         public DateTime? FechaRegistro { get; set; }
         public double ValorCompra { get; set; }
         public double valorDepreciacion { get; set; }
+        public int AnioDepreciacion{ get; set; }
     }
 }

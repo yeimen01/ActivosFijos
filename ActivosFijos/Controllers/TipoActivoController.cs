@@ -1,11 +1,15 @@
 ﻿using ActivosFijos.Data;
 using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using ActivosFijos.Model.Enum;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ActivosFijos.Model.Entities;
+using ActivosFijos.Data.Interfaces;
+using ActivosFijos.Data.Interfaces.Services;
+using ActivosFijos.Model.Utilities;
+using System.Net;
 
 namespace ActivosFijos.Controllers
 {
@@ -13,95 +17,101 @@ namespace ActivosFijos.Controllers
     [Route("api/[controller]")]
     public class TipoActivoController : ControllerBase
     {
-        private readonly ApplicationDbContext DbContext;
-        private readonly IMapper mapper;
+        private readonly ITipoActivoService<TipoActivo> _tipoActivoService;
 
-        public TipoActivoController(ApplicationDbContext DbContext, IMapper mapper)
+        public TipoActivoController(ITipoActivoService<TipoActivo> _tipoActivoService)
         {
-            this.DbContext = DbContext;
-            this.mapper = mapper;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<TipoActivo>>> Get()
-        {
-            return await DbContext.TipoActivo.Include(x => x.ActivosFijos).ToListAsync();
+            this._tipoActivoService = _tipoActivoService;
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<TipoActivo>> Get(int id)
+        public async Task<ObjectResult> Get(int id)
         {
-            var tipoActivo = await DbContext.TipoActivo.
-                Include(x => x.ActivosFijos).
-                FirstOrDefaultAsync(x => x.Id == id);
-
-            if (tipoActivo == null)
+            Respuesta respuesta;
+            try
             {
-                return NotFound("");
+                //Get by id service
+                respuesta = await _tipoActivoService.Get(id);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            return tipoActivo;
+            return Utilities.RespuestaActionResult(respuesta);
+        }
+
+        [HttpGet]
+        public async Task<ObjectResult> Get()
+        {
+            Respuesta respuesta;
+            try
+            {
+                //Get all
+                respuesta = await _tipoActivoService.Get();
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(TipoActivoCreateDTO tipoActivoDTO)
+        public async Task<ObjectResult> Post(TipoActivoCreateDTO tipoActivoDTO)
         {
-            //Mapping Information
-            TipoActivo tipoActivo = mapper.Map<TipoActivo>(tipoActivoDTO);
+            Respuesta respuesta;
+            try
+            {
+                //Post service
+                respuesta = await _tipoActivoService.Post(tipoActivoDTO);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
-            //Adding information
-            DbContext.Add(tipoActivo);
-            await DbContext.SaveChangesAsync();
-
-            return Ok("Tipo de activo agregado correctamente.");
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(TipoActivoUpdateDTO tipoActivoDTO, int id)
+        public async Task<ObjectResult> Put(TipoActivoUpdateDTO tipoActivoDTO, int id)
         {
-            //Verifying id
-            if (tipoActivoDTO.Id != id)
+            Respuesta respuesta;
+            try
             {
-                return BadRequest("El id proporcionado no coincide con el id del tipo de activo.");
+                //Put service
+                respuesta = await _tipoActivoService.Put(tipoActivoDTO, id);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            //Verifying existense
-            var tipoActivo = await DbContext.TipoActivo.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (tipoActivo == null)
-            {
-                return NotFound();
-            }
-
-            if (!Enum.IsDefined(typeof(Estado), tipoActivo.Estado))
-            {
-                return BadRequest("El estado suminstrado no existe.");
-            }
-
-            //Mapping information
-            mapper.Map(tipoActivoDTO, tipoActivo);
-
-            //Updating information
-            DbContext.Entry(tipoActivo).State = EntityState.Modified;
-            DbContext.Update(tipoActivo);
-            await DbContext.SaveChangesAsync();
-
-            return Ok("Tipo de activo actualizado correctamente.");
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ObjectResult> Delete(int id)
         {
-            var existe = await DbContext.TipoActivo.AnyAsync(x=> x.Id == id);
-
-            if (!existe)
+            Respuesta respuesta;
+            try
             {
-                return NotFound();
+                //Delete service
+                respuesta = await _tipoActivoService.Delete(id);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            DbContext.Remove(new TipoActivo { Id = id});
-            await DbContext.SaveChangesAsync();
-            return Ok("Tipo de activo borrado borrado correctamente.");
+            return Utilities.RespuestaActionResult(respuesta);
         }
     }
 }

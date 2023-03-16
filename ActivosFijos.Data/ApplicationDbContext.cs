@@ -1,4 +1,5 @@
-﻿using ActivosFijos.Model;
+﻿using ActivosFijos.Model.Entities;
+using ActivosFijos.Model.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace ActivosFijos.Data
@@ -34,12 +35,50 @@ namespace ActivosFijos.Data
                 id++;
             }
 
+            //Usuario
             modelBuilder.Entity<User>().HasData(new User
             {
                 Id = 1,
                 Username = "admin",
                 Password = "admin1234"
             });
+
+            //Empleado
+            modelBuilder.Entity<Empleado>().HasData(new Empleado
+            {
+                Id = 1,
+                Nombre = "Carlos",
+                Apellido = "Gomez",
+                Cedula = "40213108481",
+                DepartamentoId = 1,
+                TipoPersona = 0,
+                FechaIngreso = DateTime.Now
+            });
+
+            //Tipo activo
+            modelBuilder.Entity<TipoActivo>().HasData(new TipoActivo
+            {
+                Id = 1,
+                Descripcion = "Electronico",
+                CuentaContableCompra = "65",
+                CuentaContableDepreciacion = "66", 
+                Estado = 0
+            });
+
+            //Activo fijo
+            modelBuilder.Entity<ActivoFijo>().HasData(new ActivoFijo
+            {
+                Id = 1,
+                Descripcion = "Laptop",
+                DepartamentoId = 1,
+                TipoActivoId = 1,
+                FechaRegistro  = DateTime.Now,
+                ValorCompra = 25000,
+                ValorDepreciacion = 4000,
+                DepreciacionAcumulada = 0,
+                AnioDepreciacion = 2025
+            });
+
 
             base.OnModelCreating(modelBuilder);
         }
@@ -51,5 +90,5 @@ namespace ActivosFijos.Data
         public DbSet<CalculoDepreciacion> CalculoDepreciacion { get; set; }
         public DbSet<AsientosContables> AsientosContables { get; set; }
         public DbSet<User> User { get; set; }
-    }
+}
 }

@@ -1,11 +1,11 @@
 ﻿using ActivosFijos.Data;
 using ActivosFijos.Model.DTO;
-using ActivosFijos.Model;
 using ActivosFijos.Model.Enum;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ActivosFijos.Model.Entities;
 
 namespace ActivosFijos.Controllers
 {
@@ -85,7 +85,6 @@ namespace ActivosFijos.Controllers
             mapper.Map(asientosContablesUpdateDTO, asientoContable);
 
             //Updating information
-            DbContext.Entry(asientoContable).State = EntityState.Modified;
             DbContext.Update(asientoContable);
             await DbContext.SaveChangesAsync();
 

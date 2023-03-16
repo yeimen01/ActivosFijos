@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ActivosFijos.Model
+namespace ActivosFijos.Model.Entities
 {
     public class Entidad
     {
