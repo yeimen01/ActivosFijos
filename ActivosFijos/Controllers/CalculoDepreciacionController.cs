@@ -4,6 +4,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ActivosFijos.Model.Entities;
+using ActivosFijos.Data.Interfaces;
+using ActivosFijos.Model.Utilities;
+using System.Net;
 
 namespace ActivosFijos.Controllers
 {
@@ -11,125 +14,115 @@ namespace ActivosFijos.Controllers
     [Route("api/[controller]")]
     public class CalculoDepreciacionController : ControllerBase
     {
-        private readonly ApplicationDbContext DbContext;
-        private readonly IMapper Mapper;
+        private readonly ICalculoDepreciacionService<CalculoDepreciacion> _calculoService;
 
-        public CalculoDepreciacionController(ApplicationDbContext DbContext, IMapper Mapper)
+        public CalculoDepreciacionController(ICalculoDepreciacionService<CalculoDepreciacion> _calculoService)
         {
-            this.DbContext = DbContext;
-            this.Mapper = Mapper;
+            this._calculoService = _calculoService;
         }
 
         [HttpGet("Getbyactivo")]
         public async Task<ActionResult> GetByActivoFijo([FromQuery] int activoFijoId)
         {
-            var deprecionaciones = await DbContext.CalculoDepreciacion.
-                Include(x=> x.ActivosFijos)
-                .Where(depreciacion => depreciacion.ActivoFijoId == activoFijoId)
-                .ToListAsync();
+            Respuesta respuesta;
+            try
+            {
+                respuesta = await _calculoService.GetByActivoFijo(activoFijoId);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
-            return Ok(deprecionaciones);
+            return Utilities.RespuestaActionResult(respuesta);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<CalculoDepreciacionGetDTO>> Get()
+        {
+            Respuesta respuesta;
+            try
+            {
+                respuesta = await _calculoService.Get();
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CalculoDepreciacion>> Get(int id)
+        public async Task<ActionResult<CalculoDepreciacionGetDTO>> Get(int id)
         {
-            var calculoDepreciacion = await DbContext.CalculoDepreciacion.
-                Include(x=> x.ActivosFijos).
-                FirstOrDefaultAsync(x=> x.Id == id);
-
-            if (calculoDepreciacion == null)
+            Respuesta respuesta;
+            try
             {
-                return NotFound();
+                respuesta = await _calculoService.Get(id);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            return calculoDepreciacion;
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPost]
         public async Task<ActionResult> Post(CalculoDepreciacionCreateDTO calculoDepreciacionCreateDTO)
         {
-            var activoFijo = await DbContext.ActivosFijo
-                .Include(activoFijo=> activoFijo.TipoActivo)
-                .FirstOrDefaultAsync(activoFijo => activoFijo.Id == calculoDepreciacionCreateDTO.ActivoFijoId);
-
-            if (activoFijo == null)
+            Respuesta respuesta;
+            try
             {
-                return NotFound("El activo fijo no existe.");
+                respuesta = await _calculoService.Post(calculoDepreciacionCreateDTO);
             }
-            
-            //Mapping information
-            CalculoDepreciacion calculoDepreciacion = new CalculoDepreciacion()
+            catch (Exception ex)
             {
-                ActivoFijoId = calculoDepreciacionCreateDTO.ActivoFijoId,
-                AñoProceso = DateTime.Today.Year,
-                MesProceso = DateTime.Today.Month,
-                FechaProceso = DateTime.Now,
-                CuentaCompra = activoFijo.TipoActivo.CuentaContableCompra,
-                CuentaDepreciacion = activoFijo.TipoActivo.CuentaContableDepreciacion
-            };
-            
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
-            calculoDepreciacion.MontoDepreciado = activoFijo.ValorDepreciacion;
-            activoFijo.DepreciacionAcumulada += activoFijo.ValorDepreciacion;
-
-            DbContext.Add(calculoDepreciacion);
-            DbContext.Update(activoFijo);
-            await DbContext.SaveChangesAsync();
-            return Ok("El calculo de depreciacion se ha creado correctamente");
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(CalculoDepreciacionUpdateDTO calculoDepreciacionUpdateDTO, int id)
         {
-            if (calculoDepreciacionUpdateDTO.Id != id)
+            Respuesta respuesta;
+            try
             {
-                return BadRequest("El id proporcionado no coincide con el id del calculo de depreciacion");
+                //Updating service
+                respuesta = await _calculoService.Put(calculoDepreciacionUpdateDTO, id);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            //Verifying existense
-            var calculoDepreciacion = await DbContext.CalculoDepreciacion.FindAsync(id);
-
-            if (calculoDepreciacion == null)
-            {
-                return NotFound("El calculo de depreciacion a actualizar no existe.");
-            }
-
-            //Verifying existense
-            var activoFijo = await DbContext.TipoActivo.
-                FindAsync(calculoDepreciacionUpdateDTO.ActivoFijoId);
-
-            if (activoFijo == null)
-            {
-                return NotFound("El activo fijo no existe.");
-            }
-
-            //Mappping information
-            Mapper.Map(calculoDepreciacionUpdateDTO, calculoDepreciacion);
-
-            DbContext.Entry(calculoDepreciacion).State = EntityState.Modified;
-            DbContext.Update(calculoDepreciacion);
-            await DbContext.SaveChangesAsync();
-
-            return Ok("El calculo de depreciacion se ha actualizado correctamente.");
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-
-            //Verifying existense
-            var calculoDepreciacion = await DbContext.CalculoDepreciacion.FindAsync(id);
-
-            if (calculoDepreciacion == null)
+            Respuesta respuesta;
+            try
             {
-                return NotFound("El calculo de depreciacion a actualizar no existe.");
+                //Deleting service
+                respuesta = await _calculoService.Delete(id);
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            DbContext.Remove(new CalculoDepreciacion { Id = id });
-            await DbContext.SaveChangesAsync();
-
-            return Ok("El calculo de depreciacion se ha borrado correctamente.");
+            return Utilities.RespuestaActionResult(respuesta);
         }
     }
 }

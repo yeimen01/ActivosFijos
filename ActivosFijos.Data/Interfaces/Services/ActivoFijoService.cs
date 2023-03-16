@@ -1,10 +1,12 @@
 ﻿using ActivosFijos.Model.DTO;
 using ActivosFijos.Model.Entities;
+using ActivosFijos.Model.Utilities;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,78 +23,194 @@ namespace ActivosFijos.Data.Interfaces.Services
             this.mapper = mapper;
         }
 
-        public async Task<ActivoFijoGetDTO> Get(int id)
+        public async Task<Respuesta> Get(int id)
         {
-            var activoFijo = await DbContext.ActivosFijo.Select(x => new ActivoFijoGetDTO
+            Respuesta respuesta;
+
+            //var activoFijo = await DbContext.ActivosFijo.Select(x => new ActivoFijoGetDTO
+            //{
+            //    Id = x.Id,
+            //    Descripcion = x.Descripcion,
+            //    DepartamentoId = x.DepartamentoId,
+            //    DescripcionDepartamento = x.Departamento.Descripcion,
+            //    TipoActivoId = x.TipoActivoId,
+            //    DescripcionTipoActivo = x.TipoActivo.Descripcion,
+            //    FechaRegistro = x.FechaRegistro,
+            //    ValorCompra = x.ValorCompra,
+            //    ValorDepreciacion = x.ValorDepreciacion,
+            //    CuentaContableCompra = x.TipoActivo.CuentaContableCompra,
+            //    CuentaContableDepreciacion = x.TipoActivo.CuentaContableDepreciacion,
+            //    DepreciacionAcumulada = x.DepreciacionAcumulada,
+            //    AnioDepreciacion = x.AnioDepreciacion
+            //}).FirstOrDefaultAsync(x => x.Id == id);
+
+            var activoFijo = mapper.Map<ActivoFijoGetDTO>(
+                await DbContext.ActivosFijo.
+                Include(x => x.Departamento).
+                Include(x => x.TipoActivo).
+                FirstOrDefaultAsync(x => x.Id == id)
+                );
+
+            if (activoFijo == null)
             {
-                Id = x.Id,
-                Descripcion  = x.Descripcion,
-                DepartamentoId = x.DepartamentoId,
-                DescripcionDepartamento = x.Departamento.Descripcion,
-                TipoActivoId = x.TipoActivoId,
-                DescripcionTipoActivo = x.TipoActivo.Descripcion,
-                FechaRegistro = x.FechaRegistro, 
-                ValorCompra = x.ValorCompra,
-                ValorDepreciacion = x.ValorDepreciacion,
-                DepreciacionAcumulada = x.DepreciacionAcumulada
-                }).Where(x=> x.Id == id).FirstOrDefaultAsync();
-
-            return activoFijo;
-        }
-
-        public async Task<List<ActivoFijoGetDTO>> Get()
-        {
-            var activosFijos = await DbContext.ActivosFijo.Select(x => new ActivoFijoGetDTO
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else
             {
-                Id = x.Id,
-                Descripcion = x.Descripcion,
-                DepartamentoId = x.DepartamentoId,
-                DescripcionDepartamento = x.Departamento.Descripcion,
-                TipoActivoId = x.TipoActivoId,
-                DescripcionTipoActivo = x.TipoActivo.Descripcion,
-                FechaRegistro = x.FechaRegistro,
-                ValorCompra = x.ValorCompra,
-                ValorDepreciacion = x.ValorDepreciacion,
-                DepreciacionAcumulada = x.DepreciacionAcumulada
-            }).ToListAsync(); 
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", activoFijo);
+            }
 
-            return activosFijos;
+            return respuesta;
         }
-
-        public async Task<ActivoFijo> Post(ActivoFijoCreateDTO activoFijoDTO)
+        public async Task<Respuesta> Get()
         {
-            //Mapping information
-            ActivoFijo activoFijo = mapper.Map<ActivoFijo>(activoFijoDTO);
+            Respuesta respuesta;
 
-            //Saving information
-            DbContext.Add(activoFijo);
-            await DbContext.SaveChangesAsync();
+            //var activosFijos = await DbContext.ActivosFijo.Select(x => new ActivoFijoGetDTO
+            //{
+            //    Id = x.Id,
+            //    Descripcion = x.Descripcion,
+            //    DepartamentoId = x.DepartamentoId,
+            //    DescripcionDepartamento = x.Departamento.Descripcion,
+            //    TipoActivoId = x.TipoActivoId,
+            //    DescripcionTipoActivo = x.TipoActivo.Descripcion,
+            //    FechaRegistro = x.FechaRegistro,
+            //    ValorCompra = x.ValorCompra,
+            //    ValorDepreciacion = x.ValorDepreciacion,
+            //    CuentaContableCompra = x.TipoActivo.CuentaContableCompra,
+            //    CuentaContableDepreciacion = x.TipoActivo.CuentaContableDepreciacion,
+            //    DepreciacionAcumulada = x.DepreciacionAcumulada,
+            //    AnioDepreciacion = x.AnioDepreciacion
+            //}).ToListAsync();
 
-            return activoFijo;
+            var activosFijos = mapper.Map<List<ActivoFijoGetDTO>>(
+                await DbContext.ActivosFijo.
+                Include(x => x.Departamento).
+                Include(x => x.TipoActivo).
+                ToListAsync());
+
+            if (activosFijos == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", activosFijos);
+            }
+
+            return respuesta;
         }
-
-        public async Task Put(ActivoFijoUpdateDTO activoFijoDTO, ActivoFijoGetDTO activoFijo)
+        public async Task<Respuesta> Post(ActivoFijoCreateDTO activoFijoreateDTO)
         {
-            //Mapping information
-            mapper.Map(activoFijoDTO, activoFijo);
+            Respuesta respuesta;
 
-            //Updating information
-            DbContext.Entry(activoFijo).State = EntityState.Modified;
-            DbContext.Update(activoFijo);
-            await DbContext.SaveChangesAsync();
+            //Departamento
+            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x=> x.Id == activoFijoreateDTO.DepartamentoId);
+
+            //Tipo activo
+            var tipoActivo = await DbContext.TipoActivo.FirstOrDefaultAsync(x=> x.Id == activoFijoreateDTO.TipoActivoId);
+
+            if (departamento == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotró el departamento.");
+            }
+            else if (tipoActivo == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotró el tipo de activo.");
+            }
+            else
+            {
+                //Mapping information
+                ActivoFijo activoFijo = mapper.Map<ActivoFijo>(activoFijoreateDTO);
+
+                //Saving information
+                DbContext.Add(activoFijo);
+                await DbContext.SaveChangesAsync();
+
+                //Mapping information to show the data
+                ActivoFijoGetDTO activoFijoGetDTO = mapper.Map<ActivoFijoGetDTO>(activoFijo);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Activo fijo agregado correctamente.", activoFijoGetDTO);
+            }
+
+            return respuesta;
         }
+        public async Task<Respuesta> Put(ActivoFijoUpdateDTO activoFijoUpdateDTO, int id)
+        {
+            Respuesta respuesta;
 
-        public async Task Delete(int id)
-        {
-            //Deleting information
-            DbContext.Remove(new ActivoFijo() { Id = id });
-            await DbContext.SaveChangesAsync();
+            //Activo fijo
+            var activoFijo = await DbContext.ActivosFijo.FirstOrDefaultAsync(x=> x.Id == id);
+
+            //Departamento
+            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x=> x.Id == activoFijoUpdateDTO.DepartamentoId);
+
+            //Tipo activo
+            var tipoActivo = await DbContext.TipoActivo.FirstOrDefaultAsync(x=> x.Id == activoFijoUpdateDTO.TipoActivoId);
+
+            if (activoFijoUpdateDTO.Id != id)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El id proporcionado no coincide con el id del activo fijo.");
+            } 
+            else if (activoFijo == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else if (departamento == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotró el departamento.");
+            }
+            else if (tipoActivo == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotro el tipo de activo.");
+            }
+            else
+            {
+                //Mapping information
+                mapper.Map(activoFijoUpdateDTO, activoFijo);
+
+                //Updating information
+                DbContext.Update(activoFijo);
+                await DbContext.SaveChangesAsync();
+
+                //Mapping information to show the data
+                ActivoFijoGetDTO activoFijoGetDTO = mapper.Map<ActivoFijoGetDTO>(activoFijo);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Activo fijo actualizado correctamente.", activoFijoGetDTO);
+            }
+
+            return respuesta;
         }
-        public async Task Delete(ActivoFijoGetDTO activofijo)
+        public async Task<Respuesta> Delete(int id)
         {
-            //Deleting information
-            DbContext.Remove(activofijo);
-            await DbContext.SaveChangesAsync();
+            Respuesta respuesta;
+
+            var activoFijo = await DbContext.ActivosFijo.FirstOrDefaultAsync(x=> x.Id == id);
+
+            if (activoFijo == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else
+            {
+                //Deleting information
+                DbContext.Remove(activoFijo);
+                await DbContext.SaveChangesAsync();
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Activo fijo borrado correctamente.");
+            }
+
+            return respuesta;
         }
     }
 }

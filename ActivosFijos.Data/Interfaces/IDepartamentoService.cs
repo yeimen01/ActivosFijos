@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 
 namespace ActivosFijos.Data.Interfaces
 {
-    public interface IDepartamentoService<T>
+    public interface IDepartamentoService<T> : IRepository<Departamento, DepartamentoCreateDTO, DepartamentoUpdateDTO>
     {
-        Task<DepartamentoGetDTO> Get(int id);
+        //Task<Respuesta> Get(int id);
 
-        Task<List<DepartamentoGetDTO>> Get();
+        //Task<Respuesta> Get();
 
-        Task<Departamento> Post(DepartamentoCreateDTO departamentoDTO);
+        //Task<Respuesta> Post(DepartamentoCreateDTO departamentoDTO);
 
-        Task Put(DepartamentoUpdateDTO departamentoDTO, DepartamentoGetDTO departamento);
+        //Task<Respuesta> Put(DepartamentoUpdateDTO departamentoDTO, int id);
 
-        Task Delete(int id);
+        //Task<Respuesta> Delete(int id);
 
-        Task Delete(DepartamentoGetDTO departamento);
     }
 }

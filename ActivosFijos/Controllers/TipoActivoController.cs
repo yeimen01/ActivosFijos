@@ -24,160 +24,94 @@ namespace ActivosFijos.Controllers
             this._tipoActivoService = _tipoActivoService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<TipoActivo>>> Get()
+        [HttpGet("{id:int}")]
+        public async Task<ObjectResult> Get(int id)
         {
             Respuesta respuesta;
             try
             {
-                //Data
-                var tiposActivos = await _tipoActivoService.Get();
-               
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", tiposActivos);
-
+                //Get by id service
+                respuesta = await _tipoActivoService.Get(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500,respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<TipoActivo>> Get(int id)
+        [HttpGet]
+        public async Task<ObjectResult> Get()
         {
             Respuesta respuesta;
             try
             {
-                //Data
-                var tipoActivo = await _tipoActivoService.Get(id);
-
-                if (tipoActivo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
-                    return NotFound(respuesta);
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", tipoActivo);
-
+                //Get all
+                respuesta = await _tipoActivoService.Get();
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500,respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(TipoActivoCreateDTO tipoActivoDTO)
+        public async Task<ObjectResult> Post(TipoActivoCreateDTO tipoActivoDTO)
         {
             Respuesta respuesta;
             try
             {
-                //Data
-                var tipoActivo = await _tipoActivoService.Post(tipoActivoDTO);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Tipo de activo agregado correctamente.", tipoActivo);
+                //Post service
+                respuesta = await _tipoActivoService.Post(tipoActivoDTO);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(TipoActivoUpdateDTO tipoActivoDTO, int id)
+        public async Task<ObjectResult> Put(TipoActivoUpdateDTO tipoActivoDTO, int id)
         {
             Respuesta respuesta;
             try
             {
-                //Verifying id
-                if (tipoActivoDTO.Id != id)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del tipo de activo.");
-                    return NotFound(respuesta);
-                }
-
-                //Verifying existense
-                var tipoActivo = await _tipoActivoService.Get(id);
-
-                if (tipoActivo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
-                    return NotFound(respuesta);
-                }
-
-                if (!Enum.IsDefined(typeof(Estado), tipoActivo.Estado))
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
-                    return BadRequest(respuesta);
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Tipo de activo actualizado correctamente.", tipoActivo);
-
+                //Put service
+                respuesta = await _tipoActivoService.Put(tipoActivoDTO, id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-
-            return Ok(respuesta);
-        }    
+            return Utilities.RespuestaActionResult(respuesta);
+        }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ObjectResult> Delete(int id)
         {
             Respuesta respuesta;
             try
             {
-                var existeTipoActivo = await _tipoActivoService.Get(id);
-
-                if (existeTipoActivo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
-                    return NotFound(respuesta);
-                }
-
-                if (existeTipoActivo.ActivosFijos.Count > 0)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de activo no se puede borrar, ya que posee activos fijos.");
-                    return BadRequest(respuesta);
-                }
-
-                //Deleting service
-                await _tipoActivoService.Delete(existeTipoActivo);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Tipo de activo borrado correctamente");
-
-                return Ok(respuesta);
+                //Delete service
+                respuesta = await _tipoActivoService.Delete(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500,respuesta);
             }
 
-
+            return Utilities.RespuestaActionResult(respuesta);
         }
     }
 }

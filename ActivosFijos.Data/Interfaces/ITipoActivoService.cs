@@ -8,19 +8,16 @@ using System.Threading.Tasks;
 
 namespace ActivosFijos.Data.Interfaces
 {
-    public interface ITipoActivoService<T>
+    public interface ITipoActivoService<T> : IRepository<TipoActivo, TipoActivoCreateDTO, TipoActivoUpdateDTO>
     {
-        Task<TipoActivoGetDTO> Get(int id);
+        //Task<TipoActivoGetDTO> Get(int id);
 
-        Task<List<TipoActivoGetDTO>> Get();
+        //Task<List<TipoActivoGetDTO>> Get();
 
-        Task<TipoActivo> Post(TipoActivoCreateDTO tipoActivoCreateDTO);
+        //Task<TipoActivo> Post(TipoActivoCreateDTO tipoActivoCreateDTO);
 
-        Task Put(TipoActivoUpdateDTO tipoActivoUpdateDTO, TipoActivoGetDTO tipoActivoGetDTO);
+        //Task Put(TipoActivoUpdateDTO tipoActivoUpdateDTO, int id);
 
-        Task Delete(int id);
-
-        Task Delete(TipoActivoGetDTO tipoActivoGetDTO);
-
+        //Task Delete(int id);
     }
 }

@@ -20,7 +20,9 @@ namespace ActivosFijos.Model.Entities
 
         public int Id { get; set; }
         public string Nombre { get; set; }
+
         public string Apellido { get; set; }
+
         private string NombreCompleto
         {
             get
@@ -29,6 +31,7 @@ namespace ActivosFijos.Model.Entities
             }
         }
         public string Cedula { get; set; }
+
         public int DepartamentoId { get; set; }
 
         [JsonIgnore]
@@ -37,7 +40,9 @@ namespace ActivosFijos.Model.Entities
         [NotMapped] public string DepartamentoDescripcion { get; set; }
 
         public TipoPersona TipoPersona { get; set; }
+
         public DateTime? FechaIngreso { get; set; }
+
         public Estado Estado { get; set; }
     }
 }

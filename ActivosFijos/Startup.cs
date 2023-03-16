@@ -34,6 +34,9 @@ namespace ActivosFijos
             //Scopes
             services.AddScoped<IDepartamentoService<Departamento>, DepartamentoService<Departamento>>();
             services.AddScoped<IEmpleadoService<Empleado>, EmpleadoService<Empleado>>();
+            services.AddScoped<ITipoActivoService<TipoActivo>, TipoActivoService<TipoActivo>>();
+            services.AddScoped<IActivoFijoService<ActivoFijo>, ActivoFijoService<ActivoFijo>>();
+            services.AddScoped<ICalculoDepreciacionService<CalculoDepreciacion>, CalculoDepreciacionService<CalculoDepreciacion>>();
 
             //Mapper
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);

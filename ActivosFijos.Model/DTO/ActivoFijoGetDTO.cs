@@ -16,6 +16,8 @@ namespace ActivosFijos.Model.DTO
         public string DescripcionDepartamento { get; set; }
         public int TipoActivoId { get; set; }
         public string DescripcionTipoActivo { get; set; }
+        public string CuentaContableCompra { get; set; }
+        public string CuentaContableDepreciacion { get; set; }
         public DateTime? FechaRegistro { get; set; }
         public double ValorCompra { get; set; }
         public double ValorDepreciacion { get; set; }

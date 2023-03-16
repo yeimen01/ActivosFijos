@@ -1,11 +1,13 @@
 ﻿using ActivosFijos.Model.DTO;
 using ActivosFijos.Model.Entities;
+using ActivosFijos.Model.Enum;
 using ActivosFijos.Model.Utilities;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,9 +24,11 @@ namespace ActivosFijos.Data.Interfaces.Services
             this.mapper = mapper;
         }
 
-        public async Task<TipoActivoGetDTO> Get(int id)
+        public async Task<Respuesta> Get(int id)
         {
-            var tipoActivo = await DbContext.TipoActivo.Select(x=> new TipoActivoGetDTO
+            Respuesta respuesta;
+
+            var tipoActivo = await DbContext.TipoActivo.Select(x => new TipoActivoGetDTO
             {
                 Id = x.Id,
                 Descripcion = x.Descripcion,
@@ -33,15 +37,29 @@ namespace ActivosFijos.Data.Interfaces.Services
                 Estado = Utilities.Estado(x.Estado),
                 ActivosFijos = x.ActivosFijos
             }).
-            Where(x=> x.Id == id).
-            FirstOrDefaultAsync();
+            FirstOrDefaultAsync(x => x.Id == id);
 
-            return tipoActivo;
+            //var tipoActivo = mapper.Map<TipoActivoGetDTO>(await DbContext.TipoActivo.ToListAsync());
+
+            if (tipoActivo == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", tipoActivo);
+            }
+
+            return respuesta;
         }
 
-        public async Task<List<TipoActivoGetDTO>> Get()
+        public async Task<Respuesta> Get()
         {
-            var tipoActivos = await DbContext.TipoActivo.Select(x => new TipoActivoGetDTO
+            Respuesta respuesta;
+
+            var tipoActivo = await DbContext.TipoActivo.Select(x => new TipoActivoGetDTO
             {
                 Id = x.Id,
                 Descripcion = x.Descripcion,
@@ -51,43 +69,107 @@ namespace ActivosFijos.Data.Interfaces.Services
                 ActivosFijos = x.ActivosFijos
             }).ToListAsync();
 
-            return tipoActivos;
+            if (tipoActivo == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else if (tipoActivo.Count == 0)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NoContent, "Aún no se ha agregado ningún tipo de activo");
+            }
+            else
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", tipoActivo);
+            }
+
+            return respuesta;
         }
 
-        public async Task<TipoActivo> Post(TipoActivoCreateDTO tipoActivoCreateDTO)
+        public async Task<Respuesta> Post(TipoActivoCreateDTO tipoActivoCreateDTO)
         {
-            //Mapping information
+            //Mapping information to create the data
             TipoActivo tipoActivo = mapper.Map<TipoActivo>(tipoActivoCreateDTO);
 
-            //Adding information
+            //Adding information to the context
             DbContext.Add(tipoActivo);
             await DbContext.SaveChangesAsync();
 
-            return tipoActivo;
+            //Mapping information to show the data
+            TipoActivoGetDTO tipoActivoGetDTO = mapper.Map<TipoActivoGetDTO>(tipoActivo);
+
+            //Respuesta
+            Respuesta respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Tipo de activo agregado correctamente", tipoActivoGetDTO);
+
+            return respuesta;
         }
 
-        public async Task Put(TipoActivoUpdateDTO tipoActivoUpdateDTO, TipoActivoGetDTO tipoActivoGetDTO)
+        public async Task<Respuesta> Put(TipoActivoUpdateDTO tipoActivoUpdateDTO, int id)
         {
-            //Mapping information
-            mapper.Map(tipoActivoUpdateDTO, tipoActivoGetDTO);
+            Respuesta respuesta;
 
-            //Updating information
-            DbContext.Entry(tipoActivoGetDTO).State= EntityState.Modified;
-            DbContext.Update(tipoActivoGetDTO);
-            await DbContext.SaveChangesAsync();
+            //Verifying existense
+            var tipoActivo = await DbContext.TipoActivo.FirstOrDefaultAsync(x => x.Id == id);
+
+            //Verifying id
+            if (tipoActivoUpdateDTO.Id != id)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del tipo de activo.");
+            }
+            else if (tipoActivo == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else if (!Enum.IsDefined(typeof(Estado), tipoActivoUpdateDTO.Estado))
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
+            }
+            else
+            {
+                //Mapping information
+                mapper.Map(tipoActivoUpdateDTO, tipoActivo);
+
+                //Updating information
+                DbContext.Update(tipoActivo);
+                await DbContext.SaveChangesAsync();
+
+                //Mapping information to show the data
+                TipoActivoGetDTO tipoActivoGetDTO = mapper.Map<TipoActivoGetDTO>(tipoActivo);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Tipo activo actualizado correctamente.", tipoActivoGetDTO);
+            }
+
+            return respuesta;
         }
 
-        public async Task Delete(int id)
+        public async Task<Respuesta> Delete(int id)
         {
-            //Deleting information
-            DbContext.Remove(new TipoActivo { Id = id});
-            await DbContext.SaveChangesAsync();
-        }
-        public async Task Delete(TipoActivoGetDTO tipoActivoGetDTO)
-        {
-            //Deleting information
-            DbContext.Remove(tipoActivoGetDTO);
-            await DbContext.SaveChangesAsync();
+            Respuesta respuesta;
+
+            var existeTipoActivo = await DbContext.TipoActivo.FirstOrDefaultAsync(x=> x.Id == id);
+
+            if (existeTipoActivo == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            }
+            else if (existeTipoActivo.ActivosFijos != null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de activo no se puede borrar, ya que posee activos fijos.");
+            }
+            else
+            {
+                //Deleting information
+                DbContext.Remove(existeTipoActivo);
+                await DbContext.SaveChangesAsync();
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Tipo de activo borrado correctamente");
+            }
+
+            return respuesta;
         }
     }
 }

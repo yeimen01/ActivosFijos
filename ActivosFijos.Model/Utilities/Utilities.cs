@@ -1,5 +1,6 @@
 ﻿using ActivosFijos.Model.Entities;
 using ActivosFijos.Model.Enum;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,9 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
+using System.Web.Mvc;
+
 
 namespace ActivosFijos.Model.Utilities
 {
@@ -31,6 +35,16 @@ namespace ActivosFijos.Model.Utilities
             };
 
             return respuesta;
+        }
+
+        public static ObjectResult RespuestaActionResult(Respuesta respuesta)
+        {
+            var response = new ObjectResult(respuesta)
+            {
+                StatusCode = (int?)respuesta.Code
+            };
+
+            return response;
         }
 
         public static string TipoPersona(TipoPersona TipoPersona)

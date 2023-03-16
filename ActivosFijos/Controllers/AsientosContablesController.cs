@@ -85,7 +85,6 @@ namespace ActivosFijos.Controllers
             mapper.Map(asientosContablesUpdateDTO, asientoContable);
 
             //Updating information
-            DbContext.Entry(asientoContable).State = EntityState.Modified;
             DbContext.Update(asientoContable);
             await DbContext.SaveChangesAsync();
 

@@ -21,5 +21,6 @@ namespace ActivosFijos.Model.DTO
         public double DepreciacionAcumulada { get; set; }
         public string CuentaCompra { get; set; }
         public string CuentaDepreciacion { get; set; }
+        //public List<ActivoFijo> ActivoFijos { get; set; } no es necesario
     }
 }

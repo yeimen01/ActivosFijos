@@ -13,8 +13,10 @@ namespace ActivosFijos.Model.Entities
         public int Id { get; set; }
         public string Descripcion { get; set; }
         public int DepartamentoId { get; set; }
+        [JsonIgnore]
         public Departamento Departamento { get; set; }
         public int TipoActivoId { get; set; }
+        [JsonIgnore]
         public TipoActivo TipoActivo { get; set; }
         public DateTime? FechaRegistro { get; set; } = DateTime.Now;
         public double ValorCompra { get; set; }

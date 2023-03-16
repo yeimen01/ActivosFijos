@@ -8,18 +8,16 @@ using System.Threading.Tasks;
 
 namespace ActivosFijos.Data.Interfaces
 {
-    public interface IActivoFijoService<T>
+    public interface IActivoFijoService<T> : IRepository<ActivoFijo, ActivoFijoCreateDTO, ActivoFijoUpdateDTO>
     {
-        Task<ActivoFijoGetDTO> Get(int id);
+        //Task<ActivoFijoGetDTO> Get(int id);
 
-        Task<List<ActivoFijoGetDTO>> Get();
+        //Task<List<ActivoFijoGetDTO>> Get();
 
-        Task<ActivoFijo> Post(ActivoFijoCreateDTO activoFijo);
+        //Task<ActivoFijo> Post(ActivoFijoCreateDTO activoFijo);
 
-        Task Put(ActivoFijoUpdateDTO activoFijoUpdateDTO, ActivoFijoGetDTO activoFijoGetDTO);
+        //Task Put(ActivoFijoUpdateDTO activoFijoUpdateDTO, int id);
 
-        Task Delete(int id);
-
-        Task Delete(ActivoFijoGetDTO activofijo);
+        //Task Delete(int id);
     }
 }

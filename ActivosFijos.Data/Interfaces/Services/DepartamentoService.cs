@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,8 +24,10 @@ namespace ActivosFijos.Data.Interfaces.Services
             this.mapper = mapper;
         }
 
-        public async Task<DepartamentoGetDTO> Get(int id)
+        public async Task<Respuesta> Get(int id)
         {
+            Respuesta respuesta;
+
             var departamento = await DbContext.Departamento.
                 Select(x => new DepartamentoGetDTO
                 {
@@ -32,14 +35,26 @@ namespace ActivosFijos.Data.Interfaces.Services
                     Descripcion = x.Descripcion,
                     Estado = Utilities.Estado(x.Estado),
                     Empleados = x.Empleados
-                }).Where(x=> x.Id == id).
-                FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync(x=> x.Id == id);
 
-            return departamento;
+            if (departamento == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
+            }
+            else
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamento);
+            }
+
+            return respuesta;
         }
 
-        public async Task<List<DepartamentoGetDTO>> Get()
+        public async Task<Respuesta> Get()
         {
+            Respuesta respuesta;
+
             var Departamentos = await DbContext.Departamento.
                 Select( x=> new DepartamentoGetDTO { 
                     Id = x.Id,
@@ -48,10 +63,26 @@ namespace ActivosFijos.Data.Interfaces.Services
                     Empleados = x.Empleados
                 }).ToListAsync();
 
-            return Departamentos;
+            if (Departamentos == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
+            } 
+            else if(Departamentos.Count == 0)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NoContent, "Aún no se ha agregado ningún departamento");
+            }
+            else
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", Departamentos);
+            }
+
+            return respuesta;
         }
 
-        public async Task<Departamento> Post(DepartamentoCreateDTO departamentoDTO)
+        public async Task<Respuesta> Post(DepartamentoCreateDTO departamentoDTO)
         {
             //Mapping information
             Departamento departamento = mapper.Map<Departamento>(departamentoDTO);
@@ -60,32 +91,87 @@ namespace ActivosFijos.Data.Interfaces.Services
             DbContext.Add(departamento);
             await DbContext.SaveChangesAsync();
 
-            return departamento;
+            //Mapping information to show
+            DepartamentoGetDTO departamentoGetDTO = mapper.Map<DepartamentoGetDTO>(departamento);
+
+            //Respuesta
+            Respuesta respuesta = Utilities.Respuesta(HttpStatusCode.Created, "Departamento creado correctamente", departamentoGetDTO);
+
+            return respuesta;
         }
 
-        public async Task Put(DepartamentoUpdateDTO departamentoDTO, DepartamentoGetDTO departamento)
+        public async Task<Respuesta> Put(DepartamentoUpdateDTO departamentoDTO, int id)
         {
-            //Mapping information
-            mapper.Map(departamentoDTO, departamento);
+            Respuesta respuesta;
 
-            //Updating information
-            DbContext.Entry(departamento).State = EntityState.Modified;
-            DbContext.Update(departamento);
-            await DbContext.SaveChangesAsync();
+            //Verifying existense
+            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x => x.Id == id);
+
+            //Verifying id
+            if (departamentoDTO.Id != id)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del departamento.");
+            }
+            else if (departamento == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el departamento.");
+            }
+            //Verifying if enum is correct
+            else if (!Enum.IsDefined(typeof(Estado), departamento.Estado))
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
+            }
+            else
+            {
+                //Mapping information
+                mapper.Map(departamentoDTO, departamento);
+
+                //Updating information
+                DbContext.Update(departamento);
+                await DbContext.SaveChangesAsync();
+
+                //Mapping information to show
+                DepartamentoGetDTO departamentoGetDTO = mapper.Map<DepartamentoGetDTO>(departamento);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Departamento actualizado correctamente", departamentoGetDTO);
+            }
+
+            return respuesta;
         }
 
-        public async Task Delete(int id)
+        public async Task<Respuesta> Delete(int id)
         {
-            //Deleting information
-            DbContext.Remove(new Departamento() { Id = id });
-            await DbContext.SaveChangesAsync();
+            Respuesta respuesta;
+
+            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x=>x.Id == id);
+
+            if (departamento == null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el departamento.");
+            }
+
+            else if (departamento.Empleados != null)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "No se puede borrar el departamento, porque ya tiene empleados.");
+            }
+            else
+            {
+                //Deleting information
+                DbContext.Remove(departamento);
+                await DbContext.SaveChangesAsync();
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Departamento borrado correctamente");
+            }
+
+            return respuesta;
         }
 
-        public async Task Delete(DepartamentoGetDTO departamento)
-        {
-            //Deleting information
-            DbContext.Remove(departamento);
-            await DbContext.SaveChangesAsync();
-        }
     }
 }

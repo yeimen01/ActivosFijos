@@ -8,18 +8,8 @@ using System.Threading.Tasks;
 
 namespace ActivosFijos.Data.Interfaces
 {
-    public interface ICalculoDepreciacionService<T>
+    public interface ICalculoDepreciacionService<T> : IRepository<CalculoDepreciacion, CalculoDepreciacionCreateDTO, CalculoDepreciacionUpdateDTO>
     {
-        Task<CalculoDepreciacionGetDTO> Get(int id);
-
-        Task<List<CalculoDepreciacionGetDTO>> Get();
-
-        Task<CalculoDepreciacion> Post(CalculoDepreciacionCreateDTO calculoDepreciacionCreateDTO);
-
-        Task Put(CalculoDepreciacionUpdateDTO calculoDepreciacionUpdateDTO, CalculoDepreciacionGetDTO calculoDepreciacionGetDTO);
-
-        Task Delete(int id);
-
-        Task Delete(CalculoDepreciacionGetDTO calculoDepreciacionGetDTO);
+        Task<Respuesta> GetByActivoFijo(int activoFijoId);
     }
 }

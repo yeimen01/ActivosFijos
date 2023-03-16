@@ -9,6 +9,7 @@ using ActivosFijos.Data.Interfaces;
 using ActivosFijos.Model.Entities;
 using ActivosFijos.Model.Utilities;
 using System.Net;
+using System.Web.Http.Results;
 
 namespace ActivosFijos.Controllers
 {
@@ -26,172 +27,93 @@ namespace ActivosFijos.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<DepartamentoGetDTO>> Get(int id)
+        public async Task<ObjectResult> Get(int id)
         {
             Respuesta respuesta;
             try
             {
-                //GetById service
-                var departamento = await _departamentoService.Get(id);
-
-                if (departamento == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
-                    return NotFound(respuesta);
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamento);
+                //Get By Id service
+                respuesta = await _departamentoService.Get(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<DepartamentoGetDTO>>> Get()
+        public async Task<ObjectResult> Get()
         {
             Respuesta respuesta;
             try
             {
-                //Get all service
-                var departamentos = await _departamentoService.Get();
-
-                if (departamentos == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
-                    return NotFound(respuesta);
-                }
-
                 //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamentos);
+                respuesta = await _departamentoService.Get();
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(DepartamentoCreateDTO departamentoDTO)
+        public async Task<ObjectResult> Post(DepartamentoCreateDTO departamentoDTO)
         {
             Respuesta respuesta;
             try
             {
                 //Post service
-                var departamento = await _departamentoService.Post(departamentoDTO);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.Created, "Exito", departamentoDTO);
+                respuesta = await _departamentoService.Post(departamentoDTO);                              
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(DepartamentoUpdateDTO departamentoDTO, int id)
+        public async Task<ObjectResult> Put(DepartamentoUpdateDTO departamentoDTO, int id)
         {
             Respuesta respuesta;
             try
             {
-                //Verifying id
-                if (departamentoDTO.Id != id)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del departamento.");
-                    return BadRequest(respuesta);
-                }
-
-                //Verifying existense
-                var departamento = await _departamentoService.Get(id);
-
-                if (departamento == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el departamento.");
-
-                    return NotFound(respuesta);
-                }
-
-                //Verifying if enum is correct
-                if (!Enum.IsDefined(typeof(Estado), departamento.Estado))
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
-                    return BadRequest(respuesta);
-                }
-
                 //Put service
-                await _departamentoService.Put(departamentoDTO, departamento);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Departamento actualizado correctamente", departamento);
+                respuesta = await _departamentoService.Put(departamentoDTO, id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ObjectResult> Delete(int id)
         {
             Respuesta respuesta;
             try
             {
-                var departamento = await _departamentoService.Get(id);
-
-                if (departamento == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el departamento.");
-                    return NotFound(respuesta);
-                }
-
-                if (departamento.Empleados.Count > 0)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "No se puede borrar el departamento, porque ya tiene empleados.");
-                    return BadRequest(respuesta);
-                }
-
                 //Delete service
-                await _departamentoService.Delete(departamento);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Departamento borrado correctamente");
-
+                respuesta = await _departamentoService.Delete(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500,respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
     }
 }

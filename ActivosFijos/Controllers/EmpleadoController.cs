@@ -25,63 +25,40 @@ namespace ActivosFijos.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<EmpleadoGetDTO>> Get(int id)
+        public async Task<ObjectResult> Get(int id)
         {
             Respuesta respuesta;
             try
             {
-                //Data
-                var empleado = await _empleadoService.Get(id);
-
-                if (empleado == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
-                    return NotFound(respuesta);
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", empleado);
+                //Get By Id service
+                respuesta = await _empleadoService.Get(id);
 
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500,respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<EmpleadoGetDTO>>> Get()
+        public async Task<ObjectResult> Get()
         {
             Respuesta respuesta;
             try
             {
-                //Data
-                var empleados = await _empleadoService.Get();
-
-                if (empleados == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.IdNotFound);
-                    return NotFound(respuesta);
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", empleados);
-
+                //Get All
+                respuesta = await _empleadoService.Get();
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500,respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPost]
@@ -90,118 +67,52 @@ namespace ActivosFijos.Controllers
             Respuesta respuesta;
             try
             {
-                //Verifying the exitanse of the department
-                var departamento = await _departamentoService.Get(empleadoDTO.DepartamentoId);
-
-                if (departamento == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el departamento del empleado que desea agregar.");
-                    return NotFound(respuesta);
-                }
-
-                //Verifying tipo persona
-                if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de persona suministrado no existe.");
-                    return BadRequest(respuesta);
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", departamento);
-
+                //Post service
+                respuesta = await _empleadoService.Post(empleadoDTO);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(EmpleadoUpdateDTO empleadoDTO, int id)
+        public async Task<ObjectResult> Put(EmpleadoUpdateDTO empleadoDTO, int id)
         {
             Respuesta respuesta;
             try
             {
-                //Verifying id
-                if (empleadoDTO.Id != id)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "El id proporcionado no coincide con el id del empleado.");
-                    return NotFound(respuesta);
-                }
-
-                //Verifying existense
-                var empleado = await _empleadoService.Get(id);
-
-                if (empleado == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el id del empleado que desea actualizar.");
-                    return NotFound(respuesta);
-                }
-
-                if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de persona suministrado no existe.");
-                    return BadRequest(respuesta);
-                }
-
-                if (!Enum.IsDefined(typeof(Estado), empleado.Estado))
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
-                    return BadRequest(respuesta);
-                }
-
                 //Put service
-                await _empleadoService.Put(empleadoDTO, empleado);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Empleado actualizado correctamente.", empleado);
-
+                respuesta = await _empleadoService.Put(empleadoDTO, id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ObjectResult> Delete(int id)
         {
             Respuesta respuesta;
             try
             {
-                var existeEmpleado = await _empleadoService.Get(id);
-
-                if (existeEmpleado == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el id del empleado que desea borrar.");
-                    return NotFound(respuesta);
-                }
-
                 //Delete service
-                await _empleadoService.Delete(existeEmpleado);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Empleado borrado correctamente.");
-
+                respuesta = await _empleadoService.Delete(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
 
     }

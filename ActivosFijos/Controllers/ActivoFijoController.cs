@@ -18,193 +18,95 @@ namespace ActivosFijos.Controllers
     public class ActivoFijoController : ControllerBase
     {
         private readonly IActivoFijoService<ActivoFijo> _activoFijoService;
-        private readonly ITipoActivoService<TipoActivo> _tipoActivoService;
-        private readonly IDepartamentoService<Departamento> _departamentoService;
 
-
-        public ActivoFijoController(
-            IActivoFijoService<ActivoFijo> _activoFijoService, 
-            ITipoActivoService<TipoActivo> _tipoActivoService,
-            IDepartamentoService<Departamento> _departamentoService)
+        public ActivoFijoController(IActivoFijoService<ActivoFijo> _activoFijoService) 
         {
             this._activoFijoService = _activoFijoService;
-            this._tipoActivoService = _tipoActivoService;
-            this._departamentoService = _departamentoService;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<ActivoFijo>>> Get()
-        {
-            Respuesta respuesta;
-            try
-            {
-                //Data
-                var activoFijo = await _activoFijoService.Get();
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", activoFijo);
-
-            }
-            catch (Exception ex)
-            {
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(statusCode: 500, respuesta);
-            }
-
-            return Ok(respuesta);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ActivoFijo>> Get(int id)
+        public async Task<ObjectResult> Get(int id)
         {
             Respuesta respuesta;
             try
             {
-                //Data
-                var activoFijo = await _activoFijoService.Get(id);
-
-                if (activoFijo == null)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
-                    return NotFound();
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", activoFijo);
+                //Get service
+                respuesta = await _activoFijoService.Get(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(statusCode: 500,respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
+        [HttpGet]
+        public async Task<ObjectResult> Get()
+        {
+            Respuesta respuesta;
+            try
+            {
+                //Get all serice
+                respuesta = await _activoFijoService.Get();
+            }
+            catch (Exception ex)
+            {
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
+            return Utilities.RespuestaActionResult(respuesta);
+        }
         [HttpPost]
-        public async Task<ActionResult> Post(ActivoFijoCreateDTO activoFijoCreateDTO)
+        public async Task<ObjectResult> Post(ActivoFijoCreateDTO activoFijoCreateDTO)
         {
             Respuesta respuesta;
             try
             {
-                var departamento = _departamentoService.Get(activoFijoCreateDTO.DepartamentoId);
-
-                if (departamento == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotro el departamento.");
-                    return NotFound(respuesta);
-                }
-
-                var tipoActivo = _tipoActivoService.Get(activoFijoCreateDTO.TipoActivoId);
-
-                if (tipoActivo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotro el tipo de activo.");
-                    return NotFound(respuesta);
-                }
-
                 //Post service
-                var activoFijo = await _activoFijoService.Post(activoFijoCreateDTO);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", activoFijo);
-
+                respuesta = await _activoFijoService.Post(activoFijoCreateDTO);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(statusCode: 500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
-
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(ActivoFijoUpdateDTO activoFijoUpdateDTO, int id)
+        public async Task<ObjectResult> Put(ActivoFijoUpdateDTO activoFijoUpdateDTO, int id)
         {
             Respuesta respuesta;
             try
             {
-                if (activoFijoUpdateDTO.Id != id)
-                {
-                    //Respuesta
-                    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El id proporcionado no coincide con el id del activo fijo.");
-                    return BadRequest(respuesta);
-                }
-
-                //Activo fijo
-                var activoFijo = await _activoFijoService.Get(id);
-
-                if (activoFijo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
-                    return NotFound(respuesta);
-                }
-
-                //Departamento
-                var departamento = _departamentoService.Get(activoFijoUpdateDTO.DepartamentoId);
-
-                if (departamento == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotro el departamento.");
-                    return NotFound(respuesta);
-                }
-
-                //Tipo activo
-                var tipoActivo = _tipoActivoService.Get(activoFijoUpdateDTO.TipoActivoId);
-
-                if (tipoActivo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotro el tipo de activo.");
-                    return NotFound(respuesta);
-                }
-
-                //Update service
-                await _activoFijoService.Put(activoFijoUpdateDTO, activoFijo);
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", activoFijo);
+                //Put service
+                respuesta = await _activoFijoService.Put(activoFijoUpdateDTO, id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(statusCode: 500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
-
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ObjectResult> Delete(int id)
         {
             Respuesta respuesta;
             try
             {
-                var existeActivoFijo = await _activoFijoService.Get(id);
-
-                if (existeActivoFijo == null)
-                {
-                    respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
-                    return NotFound();
-                }
-
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Activo fijo borrado correctamente.");
-
+                respuesta = await _activoFijoService.Delete(id);
             }
             catch (Exception ex)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.InternalServerError, ex.Message);
-                return StatusCode(statusCode: 500, respuesta);
             }
 
-            return Ok(respuesta);
+            return Utilities.RespuestaActionResult(respuesta);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace ActivosFijos.Model.DTO
         public string Apellido { get; set; }
         public string Cedula { get; set; }
         public int DepartamentoId { get; set; }
-        public string DescripcionDepartamento { get; set; }
+        public string DepartamentoDescripcion { get; set; }
         public string TipoPersona { get; set; }
         public DateTime? FechaIngreso { get; set; }
         public string Estado { get; set; }
