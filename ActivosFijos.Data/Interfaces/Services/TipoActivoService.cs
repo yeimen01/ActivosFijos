@@ -28,18 +28,10 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            var tipoActivo = await DbContext.TipoActivo.Select(x => new TipoActivoGetDTO
-            {
-                Id = x.Id,
-                Descripcion = x.Descripcion,
-                CuentaContableCompra = x.CuentaContableCompra,
-                CuentaContableDepreciacion = x.CuentaContableDepreciacion,
-                Estado = Utilities.Estado(x.Estado),
-                ActivosFijos = x.ActivosFijos
-            }).
-            FirstOrDefaultAsync(x => x.Id == id);
-
-            //var tipoActivo = mapper.Map<TipoActivoGetDTO>(await DbContext.TipoActivo.ToListAsync());
+            var tipoActivo = mapper.Map<TipoActivoGetDTO>(
+                await DbContext.TipoActivo.
+                Include(x=> x.ActivosFijos).
+                FirstOrDefaultAsync(x=> x.Id == id));
 
             if (tipoActivo == null)
             {
@@ -59,15 +51,10 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            var tipoActivo = await DbContext.TipoActivo.Select(x => new TipoActivoGetDTO
-            {
-                Id = x.Id,
-                Descripcion = x.Descripcion,
-                CuentaContableCompra = x.CuentaContableCompra,
-                CuentaContableDepreciacion = x.CuentaContableDepreciacion,
-                Estado = Utilities.Estado(x.Estado),
-                ActivosFijos = x.ActivosFijos
-            }).ToListAsync();
+            var tipoActivo = mapper.Map<List<TipoActivoGetDTO>>(
+                await DbContext.TipoActivo.
+                Include(x => x.ActivosFijos).
+                ToListAsync());
 
             if (tipoActivo == null)
             {

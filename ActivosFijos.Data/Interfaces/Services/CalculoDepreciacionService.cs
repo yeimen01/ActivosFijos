@@ -55,7 +55,8 @@ namespace ActivosFijos.Data.Interfaces.Services
             //Data
             var calculoDepreciacion = mapper.Map<List<CalculoDepreciacionGetDTO>>
                             (await DbContext.CalculoDepreciacion.
-                            Include(x => x.ActivosFijos).ToListAsync());
+                            Include(x => x.ActivosFijos).
+                            ToListAsync());
 
             if (calculoDepreciacion == null)
             {
@@ -69,23 +70,6 @@ namespace ActivosFijos.Data.Interfaces.Services
             }
 
             return respuesta;
-
-            //var calculoDepreciaciones = await DbContext.CalculoDepreciacion.
-            //    Select(x => new CalculoDepreciacionGetDTO
-            //    {
-            //        Id = x.Id,
-            //        AñoProceso = x.AñoProceso,
-            //        MesProceso = x.MesProceso,
-            //        ActivoFijoId = x.ActivoFijoId,
-            //        DescripcionActivosFijos = x.ActivosFijos.Descripcion,
-            //        FechaProceso = x.FechaProceso,
-            //        MontoDepreciado = x.MontoDepreciado,
-            //        DepreciacionAcumulada = x.DepreciacionAcumulada,
-            //        CuentaCompra = x.CuentaCompra,
-            //        CuentaDepreciacion = x.CuentaDepreciacion
-            //    }).ToListAsync();
-
-            //return calculoDepreciaciones;
         }
 
         public async Task<Respuesta> GetByActivoFijo(int activoFijoId)
@@ -142,19 +126,6 @@ namespace ActivosFijos.Data.Interfaces.Services
             }
             else
             {
-                ////Mapping information
-                //CalculoDepreciacion calculoDepreciacion = new CalculoDepreciacion()
-                //{
-                //    AñoProceso = calculoDepreciacionCreateDTO.AñoProceso,
-                //    MesProceso = calculoDepreciacionCreateDTO.MesProceso,
-                //    ActivoFijoId = calculoDepreciacionCreateDTO.ActivoFijoId,
-                //    FechaProceso = calculoDepreciacionCreateDTO.FechaProceso,
-                //    MontoDepreciado = calculoDepreciacionCreateDTO.MontoDepreciado,
-                //    DepreciacionAcumulada = calculoDepreciacionCreateDTO.DepreciacionAcumulada,
-                //    CuentaCompra = activoFijoGetDTO.CuentaContableCompra,
-                //    CuentaDepreciacion = activoFijoGetDTO.CuentaContableDepreciacion
-                //};
-
                 //Mapping information
                 CalculoDepreciacion calculoDepreciacion = mapper.Map<CalculoDepreciacion>(calculoDepreciacionCreateDTO);
 

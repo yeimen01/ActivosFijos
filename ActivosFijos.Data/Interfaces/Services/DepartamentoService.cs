@@ -28,14 +28,9 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            var departamento = await DbContext.Departamento.
-                Select(x => new DepartamentoGetDTO
-                {
-                    Id = x.Id,
-                    Descripcion = x.Descripcion,
-                    Estado = Utilities.Estado(x.Estado),
-                    Empleados = x.Empleados
-                }).FirstOrDefaultAsync(x=> x.Id == id);
+            var departamento = mapper.Map<DepartamentoGetDTO>(await DbContext.Departamento.
+                Include(x => x.Empleados).
+                FirstOrDefaultAsync(x=> x.Id == id));
 
             if (departamento == null)
             {
@@ -55,13 +50,7 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            var Departamentos = await DbContext.Departamento.
-                Select( x=> new DepartamentoGetDTO { 
-                    Id = x.Id,
-                    Descripcion = x.Descripcion,
-                    Estado = Utilities.Estado(x.Estado),
-                    Empleados = x.Empleados
-                }).ToListAsync();
+            var Departamentos = mapper.Map<List<DepartamentoGetDTO>>(await DbContext.Departamento.Include(x=> x.Empleados).ToListAsync());
 
             if (Departamentos == null)
             {

@@ -22,6 +22,9 @@ namespace ActivosFijos.Model.Utilities
         public const string MsgMinLetters = "El campo {0} es debe tener un minimo {1} caracteres.";
         public const string MsgCedula = "El campo {0} solo admite letras y números sin espacios o separadores.";
         public const string MsgEmailAddress = "El campo {0} no es un correo electrónico valido, ponga uno valido, por favor.";
+        public const string MsgBiggerThanZero = "El campo {0} debe tener un valor igual o mayor que cero, no puede ser negativo.";
+        public const string MsgRange = "El campo {0} debe encontrarse entre {1} y {2}.";
+        public const string MsgPassword = "El campo {0} debe tener minimo 8 caracteres, un número, una mayúscula, una minúscula y un carácter no alfanumérico.";
         public const string IdNotFound = "No se encontró ningún registro del Id proporcionado.";
         public const string NotFound = "No se encontró ningún registro.";
 
