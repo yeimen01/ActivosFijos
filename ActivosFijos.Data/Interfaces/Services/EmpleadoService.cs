@@ -28,25 +28,10 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            //Data
-            var empleado = await DbContext.Empleado.
-                Select(x => new EmpleadoGetDTO
-                {
-                    Id = x.Id,
-                    Nombre = x.Nombre,
-                    Apellido = x.Apellido,
-                    Cedula = x.Cedula,
-                    DepartamentoId = x.DepartamentoId,
-                    DepartamentoDescripcion = x.Departamento.Descripcion,
-                    TipoPersona = Utilities.TipoPersona(x.TipoPersona),
-                    FechaIngreso = x.FechaIngreso,
-                    Estado = Utilities.Estado(x.Estado)
-                }).FirstOrDefaultAsync(x => x.Id == id);
-
-            //var empleado = mapper.Map<EmpleadoGetDTO>
-            //                (await DbContext.Empleado.
-            //                Include(x => x.Departamento).
-            //                FirstOrDefaultAsync(x => x.Id == id));
+            var empleado = mapper.Map<EmpleadoGetDTO>
+                            (await DbContext.Empleado.
+                            Include(x => x.Departamento).
+                            FirstOrDefaultAsync(x => x.Id == id));
 
             if (empleado == null)
             {
@@ -58,7 +43,6 @@ namespace ActivosFijos.Data.Interfaces.Services
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.OK, "Exito", empleado);
             }
-
             
 
             return respuesta;
@@ -68,23 +52,10 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            var empleados = await DbContext.Empleado.Select(x => new EmpleadoGetDTO
-            {
-                Id = x.Id,
-                Nombre = x.Nombre,
-                Apellido = x.Apellido,
-                Cedula = x.Cedula,
-                DepartamentoId = x.DepartamentoId,
-                DepartamentoDescripcion = x.Departamento.Descripcion,
-                TipoPersona = Utilities.TipoPersona(x.TipoPersona),
-                FechaIngreso = x.FechaIngreso,
-                Estado = Utilities.Estado(x.Estado)
-            }).ToListAsync();
-
-            //var empleados = await DbContext.Empleado.
-            //    Include(x=> x.Departamento).
-            //    ToListAsync();
-            //var empleadosGetDTO = mapper.Map<List<EmpleadoGetDTO>>(empleados);
+            var empleados = mapper.Map<List<EmpleadoGetDTO>>(
+                await DbContext.Empleado.
+                Include(x=> x.Departamento).
+                ToListAsync());
 
             if (empleados == null)
             {
@@ -105,28 +76,26 @@ namespace ActivosFijos.Data.Interfaces.Services
             return respuesta;
         }
 
-        public async Task<Respuesta> Post(EmpleadoCreateDTO empleadoDTO)
+        public async Task<Respuesta> Post(EmpleadoCreateDTO empleadoCreateDTO)
         {
             Respuesta respuesta;
 
             //Verifying the exitanse of the department
-            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x=> x.Id == empleadoDTO.DepartamentoId);
+            var departamento = await DbContext.Departamento.FirstOrDefaultAsync(x=> x.Id == empleadoCreateDTO.DepartamentoId);
 
             if (departamento == null)
             {
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el departamento del empleado que desea agregar.");
             }
-            //Verifying tipo persona
-            else if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
+            else if (ValidacionesEmpleadoCreate(empleadoCreateDTO) != "")
             {
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de persona suministrado no existe.");
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, ValidacionesEmpleadoCreate(empleadoCreateDTO));
             }
             else
             {
                 //Mapping information
-                Empleado empleado = mapper.Map<Empleado>(empleadoDTO);
+                Empleado empleado = mapper.Map<Empleado>(empleadoCreateDTO);
 
                 //Adding the information
                 DbContext.Add(empleado);
@@ -167,15 +136,10 @@ namespace ActivosFijos.Data.Interfaces.Services
                 //Respuesta
                 respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No existe el id del departamento que desea actualizar.");
             }
-            else if (!Enum.IsDefined(typeof(TipoPersona), empleadoDTO.TipoPersona))
+            else if(ValidacionesEmpleadoUpdate(empleadoDTO) != "")
             {
                 //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El tipo de persona suministrado no existe.");
-            }
-            else if (!Enum.IsDefined(typeof(Estado), empleado.Estado))
-            {
-                //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, ValidacionesEmpleadoUpdate(empleadoDTO));
             }
             else
             {
@@ -218,6 +182,80 @@ namespace ActivosFijos.Data.Interfaces.Services
             }
 
             return respuesta;
+        }
+
+        private string ValidacionesEmpleadoCreate(EmpleadoCreateDTO empleadoCreateDTO)
+        {
+            string valido = "";
+
+            if (!CedulaValida(empleadoCreateDTO.Cedula))
+            {
+                valido = "La cedula no es valida.\n";
+            }
+
+            if (empleadoCreateDTO.FechaIngreso > DateTime.Now)
+            {
+                valido = "La fecha de ingreso no puede ser a futuro.\n";
+            }
+
+            //Verifying tipo persona
+            if (!Enum.IsDefined(typeof(TipoPersona), empleadoCreateDTO.TipoPersona))
+            {
+                valido = "El tipo de persona suministrado no existe.";
+            }
+            
+            return valido;
+        }
+
+        private string ValidacionesEmpleadoUpdate(EmpleadoUpdateDTO empleadoUpdateDTO)
+        {
+            string valido = "";
+
+            if (!CedulaValida(empleadoUpdateDTO.Cedula))
+            {
+                valido = "La cedula no es valida.\n";
+            }
+
+            if (empleadoUpdateDTO.FechaIngreso > DateTime.Now)
+            {
+                valido = "La fecha de ingreso no puede ser a futuro.\n";
+            }
+
+            if (!Enum.IsDefined(typeof(TipoPersona), empleadoUpdateDTO.TipoPersona))
+            {
+                valido = "El tipo de persona suministrado no existe.\n";
+            }
+
+            if (!Enum.IsDefined(typeof(Estado), empleadoUpdateDTO.Estado))
+            {
+                valido = "El estado suminstrado no existe.";
+            }
+
+            return valido;
+        }
+
+        public bool CedulaValida(string Cedula)
+        {
+            {
+                int Total = 0;
+                string vcCedula = Cedula.Replace("-", "");
+                int LongCed = vcCedula.Trim().Length;
+                int[] digitoMult = new int[11] { 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1 };
+                if (LongCed < 11 || LongCed > 11)
+                    return false;
+                for (int vDig = 1; vDig <= LongCed; vDig++)
+                {
+                    int Calculo = Int32.Parse(vcCedula.Substring(vDig - 1, 1)) * digitoMult[vDig - 1];
+                    if (Calculo < 10)
+                        Total += Calculo;
+                    else
+                        Total += Int32.Parse(Calculo.ToString().Substring(0, 1)) + Int32.Parse(Calculo.ToString().Substring(1, 1));
+                }
+                if (Total % 10 == 0)
+                    return true;
+                else
+                    return false;
+            }
         }
     }
 }

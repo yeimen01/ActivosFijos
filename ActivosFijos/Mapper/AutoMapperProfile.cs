@@ -19,9 +19,9 @@ namespace ActivosFijos.Mapper
             //GET
             CreateMap<Empleado, EmpleadoGetDTO>()
                       .ForMember(dest => dest.DepartamentoDescripcion,opt => opt.MapFrom(src => src.Departamento.Descripcion));
+
             CreateMap<Departamento, DepartamentoGetDTO>().ReverseMap();
             CreateMap<TipoActivo, TipoActivoGetDTO>().ReverseMap();
-
 
             CreateMap<ActivoFijo, ActivoFijoGetDTO>().
                 ForMember(dest => dest.DescripcionDepartamento,opt => opt.MapFrom(src=> src.Departamento.Descripcion)).
@@ -29,10 +29,8 @@ namespace ActivosFijos.Mapper
                 ForMember(dest=> dest.CuentaContableCompra, opt => opt.MapFrom(src=> src.TipoActivo.CuentaContableCompra)).
                 ForMember(dest=> dest.CuentaContableDepreciacion, opt => opt.MapFrom(src=> src.TipoActivo.CuentaContableDepreciacion));
 
-
             CreateMap<CalculoDepreciacion, CalculoDepreciacionGetDTO>().
                 ForMember(dest => dest.DescripcionActivosFijos, opt => opt.MapFrom(src => src.ActivosFijos.Descripcion));
-
 
             //PUT Or UPDATE
             CreateMap<DepartamentoUpdateDTO, Departamento>();

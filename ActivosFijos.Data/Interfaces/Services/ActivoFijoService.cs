@@ -27,23 +27,6 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
-            //var activoFijo = await DbContext.ActivosFijo.Select(x => new ActivoFijoGetDTO
-            //{
-            //    Id = x.Id,
-            //    Descripcion = x.Descripcion,
-            //    DepartamentoId = x.DepartamentoId,
-            //    DescripcionDepartamento = x.Departamento.Descripcion,
-            //    TipoActivoId = x.TipoActivoId,
-            //    DescripcionTipoActivo = x.TipoActivo.Descripcion,
-            //    FechaRegistro = x.FechaRegistro,
-            //    ValorCompra = x.ValorCompra,
-            //    ValorDepreciacion = x.ValorDepreciacion,
-            //    CuentaContableCompra = x.TipoActivo.CuentaContableCompra,
-            //    CuentaContableDepreciacion = x.TipoActivo.CuentaContableDepreciacion,
-            //    DepreciacionAcumulada = x.DepreciacionAcumulada,
-            //    AnioDepreciacion = x.AnioDepreciacion
-            //}).FirstOrDefaultAsync(x => x.Id == id);
-
             var activoFijo = mapper.Map<ActivoFijoGetDTO>(
                 await DbContext.ActivosFijo.
                 Include(x => x.Departamento).
@@ -67,23 +50,6 @@ namespace ActivosFijos.Data.Interfaces.Services
         public async Task<Respuesta> Get()
         {
             Respuesta respuesta;
-
-            //var activosFijos = await DbContext.ActivosFijo.Select(x => new ActivoFijoGetDTO
-            //{
-            //    Id = x.Id,
-            //    Descripcion = x.Descripcion,
-            //    DepartamentoId = x.DepartamentoId,
-            //    DescripcionDepartamento = x.Departamento.Descripcion,
-            //    TipoActivoId = x.TipoActivoId,
-            //    DescripcionTipoActivo = x.TipoActivo.Descripcion,
-            //    FechaRegistro = x.FechaRegistro,
-            //    ValorCompra = x.ValorCompra,
-            //    ValorDepreciacion = x.ValorDepreciacion,
-            //    CuentaContableCompra = x.TipoActivo.CuentaContableCompra,
-            //    CuentaContableDepreciacion = x.TipoActivo.CuentaContableDepreciacion,
-            //    DepreciacionAcumulada = x.DepreciacionAcumulada,
-            //    AnioDepreciacion = x.AnioDepreciacion
-            //}).ToListAsync();
 
             var activosFijos = mapper.Map<List<ActivoFijoGetDTO>>(
                 await DbContext.ActivosFijo.
