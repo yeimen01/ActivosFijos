@@ -23,5 +23,7 @@ namespace ActivosFijos.Model.DTO
         public double ValorDepreciacion { get; set; }
         public double DepreciacionAcumulada { get; set; }
         public int AnioDepreciacion{ get; set; }
+        public List<CalculoDepreciacion> CalculoDepreciaciones { get; set; }
+
     }
 }

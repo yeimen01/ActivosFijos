@@ -82,23 +82,6 @@ namespace ActivosFijos.Data.Interfaces.Services
                             Where(depreciacion => depreciacion.ActivoFijoId == activoFijoId).
                             ToListAsync());
 
-            //var calculoDepreciaciones = await DbContext.CalculoDepreciacion
-            //    .Include(x => x.ActivosFijos)
-            //    .Select(x=> new CalculoDepreciacionGetDTO
-            //    {
-            //        Id = x.Id,
-            //        AñoProceso = x.AñoProceso,
-            //        MesProceso = x.MesProceso,
-            //        ActivoFijoId = x.ActivoFijoId,
-            //        DescripcionActivosFijos = x.ActivosFijos.Descripcion,
-            //        FechaProceso = x.FechaProceso,
-            //        MontoDepreciado = x.MontoDepreciado,
-            //        DepreciacionAcumulada = x.DepreciacionAcumulada,
-            //        CuentaCompra = x.CuentaCompra,
-            //        CuentaDepreciacion = x.CuentaDepreciacion
-            //    }).Where(depreciacion => depreciacion.ActivoFijoId == activoFijoId)
-            //    .ToListAsync();
-
             if (calculoDepreciacion == null)
             {
                 //Respuesta
@@ -116,6 +99,7 @@ namespace ActivosFijos.Data.Interfaces.Services
         public async Task<Respuesta> Post(CalculoDepreciacionCreateDTO calculoDepreciacionCreateDTO)
         {
             Respuesta respuesta;
+            double valorDepreciado;
 
             var activoFijo = await DbContext.ActivosFijo.FirstOrDefaultAsync(activoFijo => activoFijo.Id == calculoDepreciacionCreateDTO.ActivoFijoId);
 
@@ -129,8 +113,13 @@ namespace ActivosFijos.Data.Interfaces.Services
                 //Mapping information
                 CalculoDepreciacion calculoDepreciacion = mapper.Map<CalculoDepreciacion>(calculoDepreciacionCreateDTO);
 
-                calculoDepreciacion.MontoDepreciado = activoFijo.ValorDepreciacion;
-                activoFijo.DepreciacionAcumulada += activoFijo.ValorDepreciacion;
+                //Calculando el valor depreciacion
+                valorDepreciado = Calcular(calculoDepreciacion, activoFijo);
+
+                //Calculando depreciación
+                calculoDepreciacion.MontoDepreciado = valorDepreciado;
+                activoFijo.DepreciacionAcumulada += valorDepreciado;
+                calculoDepreciacion.DepreciacionAcumulada = activoFijo.DepreciacionAcumulada;
 
                 //Adding information
                 DbContext.Add(calculoDepreciacion);
@@ -199,14 +188,25 @@ namespace ActivosFijos.Data.Interfaces.Services
         {
             Respuesta respuesta;
 
+            //Calculo depreciacion
             var calculoDepreciacion = await DbContext.CalculoDepreciacion.FirstOrDefaultAsync(x => x.Id == id);
+
+            //Activo Fijo
+            var activoFijo = await DbContext.ActivosFijo.FirstOrDefaultAsync(activoFijo => activoFijo.Id == calculoDepreciacion.ActivoFijoId);
 
             if (calculoDepreciacion == null)
             {
                 respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
             }
+            else if(activoFijo == null)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encontró el activo fijo.");
+            }
             else
             {
+                //Removiendo la depreciacion acumulada del activo
+                activoFijo.DepreciacionAcumulada -= calculoDepreciacion.DepreciacionAcumulada;
+
                 //Deleting information
                 DbContext.Remove(calculoDepreciacion);
                 await DbContext.SaveChangesAsync();
@@ -216,6 +216,18 @@ namespace ActivosFijos.Data.Interfaces.Services
             }
 
             return respuesta;
+        }
+
+        public double Calcular(CalculoDepreciacion calculoDepreciacion, ActivoFijo activoFijo)
+        {
+            double montoDepreciado = 0; 
+            int mesesDepreciados;
+
+            mesesDepreciados = calculoDepreciacion.MesProceso - calculoDepreciacion.FechaProceso.Value.Month;
+
+            montoDepreciado = activoFijo.ValorDepreciacion * mesesDepreciados;
+
+            return montoDepreciado;
         }
     }
 }

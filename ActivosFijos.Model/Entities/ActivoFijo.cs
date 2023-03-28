@@ -59,5 +59,7 @@ namespace ActivosFijos.Model.Entities
         [Display(Name = "año de depreciación")]
         public int AnioDepreciacion{ get; set; }
 
+        public List<CalculoDepreciacion> CalculoDepreciaciones { get; set; }
+
     }
 }

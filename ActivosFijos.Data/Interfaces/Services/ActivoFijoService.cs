@@ -31,6 +31,7 @@ namespace ActivosFijos.Data.Interfaces.Services
                 await DbContext.ActivosFijo.
                 Include(x => x.Departamento).
                 Include(x => x.TipoActivo).
+                Include(x => x.CalculoDepreciaciones).
                 FirstOrDefaultAsync(x => x.Id == id)
                 );
 
@@ -55,6 +56,7 @@ namespace ActivosFijos.Data.Interfaces.Services
                 await DbContext.ActivosFijo.
                 Include(x => x.Departamento).
                 Include(x => x.TipoActivo).
+                Include(x => x.CalculoDepreciaciones).
                 ToListAsync());
 
             if (activosFijos == null)
@@ -87,6 +89,10 @@ namespace ActivosFijos.Data.Interfaces.Services
             else if (tipoActivo == null)
             {
                 respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "No se encotró el tipo de activo.");
+            }
+            else if (activoFijoreateDTO.AnioDepreciacion < DateTime.Now.Year)
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El año de depreciación no puede ser menor al año en curso.");
             }
             else
             {
@@ -169,6 +175,7 @@ namespace ActivosFijos.Data.Interfaces.Services
             else
             {
                 //Deleting information
+                DbContext.Remove(activoFijo.CalculoDepreciaciones);
                 DbContext.Remove(activoFijo);
                 await DbContext.SaveChangesAsync();
 
