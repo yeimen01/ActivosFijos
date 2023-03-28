@@ -35,15 +35,15 @@ namespace ActivosFijos.Model.DTO
 
         public DateTime? FechaProceso { get; set; }
 
-        [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [Range(1, Int32.MaxValue, ErrorMessage = Utilities.Utilities.MsgBiggerThanZero)]
-        [Display(Name = "monto depreciado")]
-        public double MontoDepreciado { get; set; }
+        //[Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
+        //[Range(1, Int32.MaxValue, ErrorMessage = Utilities.Utilities.MsgBiggerThanZero)]
+        //[Display(Name = "monto depreciado")]
+        //public double MontoDepreciado { get; set; }
 
-        [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [Range(1, Int32.MaxValue, ErrorMessage = Utilities.Utilities.MsgBiggerThanZero)]
-        [Display(Name = "depreciación acumulada")]
-        public double DepreciacionAcumulada { get; set; }
+        //[Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
+        //[Range(0, Int32.MaxValue, ErrorMessage = Utilities.Utilities.MsgBiggerThanZero)]
+        //[Display(Name = "depreciación acumulada")]
+        //public double DepreciacionAcumulada { get; set; }
 
         [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
         [Display(Name = "cuenta de compra")]

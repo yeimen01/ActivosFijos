@@ -73,18 +73,30 @@ namespace ActivosFijos.Data.Interfaces.Services
 
         public async Task<Respuesta> Post(DepartamentoCreateDTO departamentoDTO)
         {
-            //Mapping information
-            Departamento departamento = mapper.Map<Departamento>(departamentoDTO);
+            Respuesta respuesta;
+            string validaciones = Validaciones(departamentoDTO);
 
-            //Adding the information
-            DbContext.Add(departamento);
-            await DbContext.SaveChangesAsync();
 
-            //Mapping information to show
-            DepartamentoGetDTO departamentoGetDTO = mapper.Map<DepartamentoGetDTO>(departamento);
 
-            //Respuesta
-            Respuesta respuesta = Utilities.Respuesta(HttpStatusCode.Created, "Departamento creado correctamente", departamentoGetDTO);
+            if (validaciones != "")
+            {
+                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest,  validaciones);
+            }
+            else
+            {
+                //Mapping information
+                Departamento departamento = mapper.Map<Departamento>(departamentoDTO);
+
+                //Adding the information
+                DbContext.Add(departamento);
+                await DbContext.SaveChangesAsync();
+
+                //Mapping information to show
+                DepartamentoGetDTO departamentoGetDTO = mapper.Map<DepartamentoGetDTO>(departamento);
+
+                //Respuesta
+                respuesta = Utilities.Respuesta(HttpStatusCode.Created, "Departamento creado correctamente", departamentoGetDTO);
+            }
 
             return respuesta;
         }
@@ -160,6 +172,21 @@ namespace ActivosFijos.Data.Interfaces.Services
             }
 
             return respuesta;
+        }
+
+        public string Validaciones(DepartamentoCreateDTO departamentoCreateDTO)
+        {
+            string valido = "";
+
+            if (departamentoCreateDTO.Descripcion == "" || departamentoCreateDTO.Descripcion is null)
+            {
+                valido += "El campo departamento es requerido \n";
+            }else if (departamentoCreateDTO.Descripcion.Length < 3 || departamentoCreateDTO.Descripcion.Length > 30)
+            {
+                valido += "El campo departamento debe tener un minimo de 3 caracteres y un maximo de 30";
+            }
+
+            return valido;
         }
 
     }

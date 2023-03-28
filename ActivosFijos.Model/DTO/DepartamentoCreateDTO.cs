@@ -12,9 +12,6 @@ namespace ActivosFijos.Model.DTO
     public class DepartamentoCreateDTO
     {
         [Display(Name = "descripción")]
-        [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [MaxLength(30, ErrorMessage = Utilities.Utilities.MsgMaxLetters)]
-        [MinLength(3, ErrorMessage = Utilities.Utilities.MsgMinLetters)]
         public string Descripcion { get; set; }
     }
 }

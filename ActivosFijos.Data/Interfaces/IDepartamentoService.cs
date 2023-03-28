@@ -10,15 +10,5 @@ namespace ActivosFijos.Data.Interfaces
 {
     public interface IDepartamentoService<T> : IRepository<Departamento, DepartamentoCreateDTO, DepartamentoUpdateDTO>
     {
-        //Task<Respuesta> Get(int id);
-
-        //Task<Respuesta> Get();
-
-        //Task<Respuesta> Post(DepartamentoCreateDTO departamentoDTO);
-
-        //Task<Respuesta> Put(DepartamentoUpdateDTO departamentoDTO, int id);
-
-        //Task<Respuesta> Delete(int id);
-
     }
 }

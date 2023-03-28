@@ -39,7 +39,7 @@ namespace ActivosFijos.Model.DTO
         public double ValorDepreciacion { get; set; }
 
         [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [Range(1, Int32.MaxValue, ErrorMessage = Utilities.Utilities.MsgBiggerThanZero)]
+        [Range(0, Int32.MaxValue, ErrorMessage = Utilities.Utilities.MsgBiggerThanZero)]
         [Display(Name = "depreciación acumulada")]
         public double DepreciacionAcumulada { get; set; }
 

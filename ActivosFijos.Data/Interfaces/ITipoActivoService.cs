@@ -10,14 +10,5 @@ namespace ActivosFijos.Data.Interfaces
 {
     public interface ITipoActivoService<T> : IRepository<TipoActivo, TipoActivoCreateDTO, TipoActivoUpdateDTO>
     {
-        //Task<TipoActivoGetDTO> Get(int id);
-
-        //Task<List<TipoActivoGetDTO>> Get();
-
-        //Task<TipoActivo> Post(TipoActivoCreateDTO tipoActivoCreateDTO);
-
-        //Task Put(TipoActivoUpdateDTO tipoActivoUpdateDTO, int id);
-
-        //Task Delete(int id);
     }
 }

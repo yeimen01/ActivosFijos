@@ -16,12 +16,10 @@ namespace ActivosFijos.Controllers
     public class EmpleadoController : ControllerBase
     {
         private readonly IEmpleadoService<Empleado> _empleadoService;
-        private readonly IDepartamentoService<Departamento> _departamentoService;
 
-        public EmpleadoController(IEmpleadoService<Empleado> _empleadoService, IDepartamentoService<Departamento> _departamentoService)
+        public EmpleadoController(IEmpleadoService<Empleado> _empleadoService)
         {
             this._empleadoService = _empleadoService;
-            this._departamentoService = _departamentoService;
         }
 
         [HttpGet("{id:int}")]
