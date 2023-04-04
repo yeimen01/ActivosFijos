@@ -226,10 +226,10 @@ namespace ActivosFijos.Data.Interfaces.Services
                 valido = "El tipo de persona suministrado no existe.\n";
             }
 
-            if (!Enum.IsDefined(typeof(Estado), empleadoUpdateDTO.Estado))
-            {
-                valido = "El estado suminstrado no existe.";
-            }
+            //if (!Enum.IsDefined(typeof(Estado), empleadoUpdateDTO.Estado))
+            //{
+            //    valido = "El estado suminstrado no existe.";
+            //}
 
             return valido;
         }

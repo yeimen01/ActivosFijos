@@ -109,10 +109,10 @@ namespace ActivosFijos.Data.Interfaces.Services
             {
                 respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, Utilities.NotFound);
             }
-            else if (!Enum.IsDefined(typeof(Estado), tipoActivoUpdateDTO.Estado))
-            {
-                respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
-            }
+            //else if (!Enum.IsDefined(typeof(Estado), tipoActivoUpdateDTO.Estado))
+            //{
+            //    respuesta = Utilities.Respuesta(HttpStatusCode.BadRequest, "El estado suminstrado no existe.");
+            //}
             else
             {
                 //Mapping information

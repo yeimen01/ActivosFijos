@@ -20,6 +20,6 @@ namespace ActivosFijos.Model.DTO
         [MinLength(3, ErrorMessage = Utilities.Utilities.MsgMinLetters)]
         public string Descripcion { get; set; }
 
-        public Estado Estado { get; set; }
+        //public Estado Estado { get; set; }
     }
 }

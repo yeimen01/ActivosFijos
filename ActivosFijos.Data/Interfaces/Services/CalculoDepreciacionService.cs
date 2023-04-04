@@ -205,7 +205,7 @@ namespace ActivosFijos.Data.Interfaces.Services
             else
             {
                 //Removiendo la depreciacion acumulada del activo
-                activoFijo.DepreciacionAcumulada -= calculoDepreciacion.DepreciacionAcumulada;
+                activoFijo.DepreciacionAcumulada -= calculoDepreciacion.MontoDepreciado;
 
                 //Deleting information
                 DbContext.Remove(calculoDepreciacion);
@@ -220,12 +220,12 @@ namespace ActivosFijos.Data.Interfaces.Services
 
         public double Calcular(CalculoDepreciacion calculoDepreciacion, ActivoFijo activoFijo)
         {
-            double montoDepreciado = 0; 
+            double montoDepreciado; 
             int mesesDepreciados;
 
             mesesDepreciados = calculoDepreciacion.MesProceso - calculoDepreciacion.FechaProceso.Value.Month;
 
-            montoDepreciado = activoFijo.ValorDepreciacion * mesesDepreciados;
+            montoDepreciado = (activoFijo.ValorDepreciacion * mesesDepreciados)/12;
 
             return montoDepreciado;
         }

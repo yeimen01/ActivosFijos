@@ -44,9 +44,9 @@ namespace ActivosFijos.Model.DTO
 
         public DateTime? FechaIngreso { get; set; }
         
-        [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [RegularExpression("(.*[1-9].*)|(.*[.].*[1-9].*)", ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [Display(Name = "estado")]
-        public Estado Estado { get; set; }
+        //[Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
+        //[RegularExpression("(.*[1-9].*)|(.*[.].*[1-9].*)", ErrorMessage = Utilities.Utilities.MsgRequired)]
+        //[Display(Name = "estado")]
+        //public Estado Estado { get; set; }
     }
 }
