@@ -59,6 +59,5 @@ namespace ActivosFijos.Model.Entities
         [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
         [Display(Name = "cuenta de depreciación")]
         public string CuentaDepreciacion { get; set; }
-
     }
 }

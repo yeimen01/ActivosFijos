@@ -36,8 +36,8 @@ namespace ActivosFijos.Model.DTO
         public int DepartamentoId { get; set; }
 
         [Required(ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [RegularExpression("(.*[1-9].*)|(.*[.].*[1-9].*)", ErrorMessage = Utilities.Utilities.MsgRequired)]
-        [Display(Name = "tipo de persona")]
+        //[RegularExpression("(.*[0-9].*)|(.*[.].*[0-9].*)", ErrorMessage = Utilities.Utilities.MsgRequired)]
+        //[Display(Name = "tipo de persona")]
         public TipoPersona TipoPersona { get; set; }
 
         public DateTime? FechaIngreso { get; set; }
