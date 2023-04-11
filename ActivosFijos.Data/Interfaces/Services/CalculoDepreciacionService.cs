@@ -55,8 +55,9 @@ namespace ActivosFijos.Data.Interfaces.Services
             //Data
             var calculoDepreciacion = mapper.Map<List<CalculoDepreciacionGetDTO>>
                             (await DbContext.CalculoDepreciacion.
-                            Include(x => x.ActivosFijos).
-                            ToListAsync());
+                            Include(x => x.ActivosFijos)
+                            .Where(depreciacion => depreciacion.AsientoContableId == null)
+                            .ToListAsync());
 
             if (calculoDepreciacion == null)
             {
@@ -94,6 +95,17 @@ namespace ActivosFijos.Data.Interfaces.Services
             }
 
             return respuesta;
+        }
+
+        public async Task<IEnumerable<CalculoDepreciacion>> GetByIds(IEnumerable<int> ids)
+        {
+            var calculoDepreciacion = 
+            (await DbContext.CalculoDepreciacion.
+                Include(x => x.ActivosFijos).
+                Where(depreciacion => ids.Contains(depreciacion.Id)).
+                ToListAsync());
+
+            return calculoDepreciacion;
         }
 
         public async Task<Respuesta> Post(CalculoDepreciacionCreateDTO calculoDepreciacionCreateDTO)

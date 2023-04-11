@@ -38,6 +38,31 @@ namespace ActivosFijos.Controllers
             return Utilities.RespuestaActionResult(respuesta);
         }
 
+        [HttpPost("contabilizar")]
+        public async Task<IActionResult> Contabilizar([FromBody] Contabilizar contabilizar)
+        {
+            try
+            {
+                var data = await _calculoService.GetByIds(contabilizar.Ids);
+
+                data.Select(value => new ContabilizarCreateDTO()
+                    {
+                        id_aux = 1,
+                        nombre_aux = $"Depreciación ${value.ActivosFijos.Descripcion}",
+                        monto = int.Parse(value.MontoDepreciado.ToString()),
+                        cuenta = 1,
+                        origen = "CR"
+                    })
+                    ;
+                
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        
         [HttpGet]
         public async Task<ActionResult<CalculoDepreciacionGetDTO>> Get()
         {

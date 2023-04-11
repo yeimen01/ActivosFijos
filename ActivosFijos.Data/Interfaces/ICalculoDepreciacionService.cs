@@ -11,5 +11,7 @@ namespace ActivosFijos.Data.Interfaces
     public interface ICalculoDepreciacionService<T> : IRepository<CalculoDepreciacion, CalculoDepreciacionCreateDTO, CalculoDepreciacionUpdateDTO>
     {
         Task<Respuesta> GetByActivoFijo(int activoFijoId);
+
+        Task<IEnumerable<CalculoDepreciacion>> GetByIds(IEnumerable<int> ids);
     }
 }
