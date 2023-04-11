@@ -7,6 +7,8 @@ using ActivosFijos.Model.Entities;
 using ActivosFijos.Data.Interfaces;
 using ActivosFijos.Model.Utilities;
 using System.Net;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace ActivosFijos.Controllers
 {
@@ -45,15 +47,32 @@ namespace ActivosFijos.Controllers
             {
                 var data = await _calculoService.GetByIds(contabilizar.Ids);
 
-                data.Select(value => new ContabilizarCreateDTO()
+                var contabilizarDBModels = 
+                        data.Select(value => new ContabilizarCreateDTO()
                     {
-                        id_aux = 1,
-                        nombre_aux = $"Depreciación ${value.ActivosFijos.Descripcion}",
-                        monto = int.Parse(value.MontoDepreciado.ToString()),
-                        cuenta = 1,
-                        origen = "CR"
-                    })
-                    ;
+                        id_aux = 8,
+                        nombre_aux = $"Gasto depreciación Activos Fijos",
+                        monto = value.MontoDepreciado,
+                        cuenta = 65,
+                        origen = "DB"
+                    }).ToList();
+
+                var contabilizarCRModels =  data.Select(value => new ContabilizarCreateDTO()
+                {
+                    id_aux = 8,
+                    nombre_aux = $"Gasto depreciación Activos Fijos",
+                    monto = value.MontoDepreciado,
+                    cuenta = 66,
+                    origen = "CR"
+                }).ToList();
+
+                contabilizarCRModels.AddRange(contabilizarDBModels);
+                
+                HttpClient client = new HttpClient();
+
+                var result =await client.PostAsJsonAsync("", contabilizarCRModels);
+
+                result.EnsureSuccessStatusCode();
                 
                 return Ok();
             }
