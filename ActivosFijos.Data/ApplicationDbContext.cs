@@ -49,7 +49,7 @@ namespace ActivosFijos.Data
                 Id = 1,
                 Nombre = "Carlos",
                 Apellido = "Gomez",
-                Cedula = "40213108481",
+                Cedula = "40213108489",
                 DepartamentoId = 1,
                 TipoPersona = 0,
                 FechaIngreso = DateTime.Now
@@ -74,9 +74,9 @@ namespace ActivosFijos.Data
                 TipoActivoId = 1,
                 FechaRegistro  = DateTime.Now,
                 ValorCompra = 25000,
-                ValorDepreciacion = 4000,
+                ValorDepreciacion = 6250,
                 DepreciacionAcumulada = 0,
-                AnioDepreciacion = 2025
+                AnioDepreciacion = 2027
             });
 
 
