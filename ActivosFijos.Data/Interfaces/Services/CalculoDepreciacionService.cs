@@ -142,7 +142,7 @@ namespace ActivosFijos.Data.Interfaces.Services
                 CalculoDepreciacionGetDTO calculoDepreciacionGetDTO = mapper.Map<CalculoDepreciacionGetDTO>(calculoDepreciacion);
 
                 //Respuesta
-                respuesta = Utilities.Respuesta(HttpStatusCode.NotFound, "Calculo de depreciacion agregado correctamente.", calculoDepreciacionGetDTO);
+                respuesta = Utilities.Respuesta(HttpStatusCode.Created, "Calculo de depreciacion agregado correctamente.", calculoDepreciacionGetDTO);
             }
 
             return respuesta;
