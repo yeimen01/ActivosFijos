@@ -7,6 +7,7 @@ using ActivosFijos.Model.Entities;
 using ActivosFijos.Data.Interfaces;
 using ActivosFijos.Model.Utilities;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -52,9 +53,9 @@ namespace ActivosFijos.Controllers
                     {
                         id_aux = 8,
                         nombre_aux = "Gasto depreciación Activos Fijos",
-                        monto = "1000.00",
+                        monto = Convert.ToInt64(value.MontoDepreciado),
                         cuenta = 1,
-                        id_EC = "AC500",
+                        //id_EC = "AC500",
                         origen = "CR"
                     }).ToList();
 
@@ -69,14 +70,21 @@ namespace ActivosFijos.Controllers
                 }).ToList();
 
                 contabilizarCRModels.AddRange(contabilizarDBModels);*/
-                
-                HttpClient client = new HttpClient();
 
                 foreach (var item in contabilizarDBModels)
                 {
-                    
-                    var result =await client.PostAsJsonAsync("https://contabilidadapi.azurewebsites.net/api_aux/SistCont/",item );
-                    result.EnsureSuccessStatusCode();
+                    using ( HttpClient client = new HttpClient())
+                        {
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        string url = "https://contabilidadapi.azurewebsites.net/api_aux/SistCont/";
+                        var dto = JsonConvert.SerializeObject(item);
+                        var content = new StringContent(dto,Encoding.UTF8,"application/json");
+
+                        var response = await client.PostAsync(url, content);
+                    }
+                    /*var result =await client.PostAsJsonAsync("https://contabilidadapi.azurewebsites.net/api_aux/SistCont/",item );
+                    result.EnsureSuccessStatusCode();*/
                 }
                 
                 return Ok();
