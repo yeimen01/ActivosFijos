@@ -55,21 +55,19 @@ namespace ActivosFijos.Controllers
                         nombre_aux = "Gasto depreciación Activos Fijos",
                         monto = Convert.ToInt64(value.MontoDepreciado),
                         cuenta = 1,
-                        //id_EC = "AC500",
                         origen = "CR"
                     }).ToList();
 
-                /*var contabilizarCRModels =  data.Select(value => new ContabilizarCreateDTO()
+                var contabilizarCRModels = data.Select(value => new ContabilizarCreateDTO()
                 {
                     id_aux = 8,
                     nombre_aux = $"Gasto depreciación Activos Fijos",
-                    monto = value.MontoDepreciado.ToString(),
-                    cuenta = 66,
+                    monto = Convert.ToInt64(value.MontoDepreciado),
+                    cuenta = 1,
                     origen = "CR",
-                    id_EC = "AC7"
                 }).ToList();
 
-                contabilizarCRModels.AddRange(contabilizarDBModels);*/
+                contabilizarCRModels.AddRange(contabilizarDBModels);
 
                 foreach (var item in contabilizarDBModels)
                 {
@@ -83,8 +81,6 @@ namespace ActivosFijos.Controllers
 
                         var response = await client.PostAsync(url, content);
                     }
-                    /*var result =await client.PostAsJsonAsync("https://contabilidadapi.azurewebsites.net/api_aux/SistCont/",item );
-                    result.EnsureSuccessStatusCode();*/
                 }
                 
                 return Ok();
